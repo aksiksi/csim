@@ -26,55 +26,68 @@ import Net._
   *
   * @author Assil Ksiksi
   * @param loc The location of the circuit description file in the file system.
-  * @param inputs A list of input vectors to be applied to the circuit.
   */
-class Simulator(val loc: String, val inputs: ListBuffer[Vector[Bit]]) {
-  val outputs = HashMap.empty[Int, Future[Vector[Bit]]]
+class Simulator(val loc: String) {
   val parser = new CircuitParser(loc)
 
   /**
-    * Runs a single simulation in a `Future`.
+    * Runs a single simulation, synchronously.
     *
     * @param queue A [[me.assil.csim.CircuitQueue]] instance.
     * @param nets A `Vector` of [[me.assil.csim.Net]]s.
-    * @return A `Future[Vector[Bit]]`
+    * @return A `Vector[Bit]`
     */
-  def runSim(queue: CircuitQueue, nets: Vector[Net]): Future[Vector[Bit]] = {
-    Future {
-      while (queue.nonEmpty) {
-        val gate: Gate = queue.pop
-        gate.eval()
-      }
-
-      nets.filter(_.kind == OutputNet).map(_.value)
+  def runSim(queue: CircuitQueue, nets: Vector[Net]): Vector[Bit] = {
+    while (queue.nonEmpty) {
+      val gate: Gate = queue.pop
+      gate.eval()
     }
+
+    nets.filter(_.kind == OutputNet).map(_.value)
+  }
+
+  private def initRun(input: Vector[Bit]): (CircuitQueue, Vector[Net]) = {
+    val nets: Vector[Net] = parser.genNets
+    val inputNets: Vector[Int] = nets.filter(_.kind == InputNet).map(_.n)
+
+    input.zipWithIndex.foreach { pair =>
+      val (v, i) = pair
+      val n = inputNets(i)
+      nets(n-1).value = v
+    }
+
+    val queue = parser.getCircuitQueue(nets)
+
+    (queue, nets)
   }
 
   /**
-    * Starts the simulation for a set of inputs.
+    * Runs a simulation for a single input vector.
     *
-    * Calls [[me.assil.csim.Simulator.runSim]] for each input vector.
+    * @param input Input values for the simulation.
+    * @return A `Vector[Bit]` that contains the output.
     */
-  def start(): Unit = {
-    inputs.zipWithIndex.foreach { pair =>
-      val (input, idx) = pair
-
-      val nets: Vector[Net] = parser.genNets
-      val inputNets: Vector[Int] = nets.filter(_.kind == InputNet).map(_.n)
-
-      input.zipWithIndex.foreach { pair =>
-        val (v, i) = pair
-        val n = inputNets(i)
-        nets(n-1).value = v
-      }
-
-      val queue = parser.getCircuitQueue(nets)
-
-      outputs += (idx -> runSim(queue, nets))
-    }
+  def run(input: Vector[Bit]): Vector[Bit] = {
+    val (queue, nets) = initRun(input)
+    runSim(queue, nets)
   }
 
-  def isCompleted: Boolean = {
-    outputs.forall(pair => pair._2.isCompleted)
+  /**
+    * Starts a parallel simulation for a set of input vectors.
+    *
+    * Calls [[me.assil.csim.Simulator.run]] for each input vector,
+    * and wraps the result in a `Future`.
+    *
+    * @param inputs A `ListBuffer` of input vectors.
+    */
+  def runParallel(inputs: ListBuffer[Vector[Bit]]) = {
+    val outputs = HashMap.empty[Int, Future[Vector[Bit]]]
+
+    inputs.zipWithIndex.foreach { pair =>
+      val (input, idx) = pair
+      outputs += (idx -> Future { run(input) })
+    }
+
+    outputs
   }
 }

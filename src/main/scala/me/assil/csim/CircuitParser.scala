@@ -1,6 +1,8 @@
 package me.assil.csim
 
 import java.io.File
+
+import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
 import Bit.NotEvaluated
@@ -26,6 +28,20 @@ object CircuitParser {
     */
   val LINE_SEP = "\\s+"
   @inline def splitLine(line: String): List[String] = line.split(LINE_SEP).toList
+
+  def parseInputFile(inputFile: String): ListBuffer[Vector[Bit]] = {
+    val file = new File(inputFile)
+    val inputs = ListBuffer.empty[Vector[Bit]]
+
+    Source.fromFile(file, enc = "utf-8").getLines().foreach { line =>
+      inputs += line.map { c =>
+        if (c == '0') Bit(0)
+        else Bit(1)
+      }.toVector
+    }
+
+    inputs
+  }
 }
 
 /**
@@ -53,11 +69,10 @@ class CircuitParser(val loc: String) {
 
   val lines: List[List[String]] = readFile(file)
   val stats: CircuitStats = getStats
-  val nets: Vector[Net] = genNets
 
   def readFile(file: File): List[List[String]] = {
     Source.fromFile(file, enc = "utf-8").getLines().toList
-          .map(splitLine(_))
+          .filter(_.nonEmpty).map(splitLine(_))
   }
 
   def isGateLine(line: List[String]): Boolean = {
@@ -81,7 +96,7 @@ class CircuitParser(val loc: String) {
     parseIO(lines, nets)
   }
 
-  def parseGate(line: List[String], nets: Vector[Net] = nets): Gate = {
+  def parseGate(line: List[String], nets: Vector[Net]): Gate = {
     val t = line.tail.map(n => nets(n.toInt-1))
 
     line.head match {
@@ -93,17 +108,6 @@ class CircuitParser(val loc: String) {
       case "INV" => Inv(t.head, t(1))
       case "BUF" => Buf(t.head, t(1))
     }
-  }
-
-  def getCircuitQueue: CircuitQueue = {
-    val queue = new CircuitQueue
-
-    lines.filter(isGateLine(_)).foreach { line =>
-      val g = parseGate(line)
-      queue.push(g)
-    }
-
-    queue
   }
 
   def getCircuitQueue(nets: Vector[Net]): CircuitQueue = {
