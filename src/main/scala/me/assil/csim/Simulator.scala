@@ -37,7 +37,7 @@ class Simulator(val loc: String) {
     * @param nets A `Vector` of [[me.assil.csim.Net]]s.
     * @return A `Vector[Bit]`
     */
-  def runSim(queue: CircuitQueue, nets: Vector[Net]): Vector[Bit] = {
+  private def runSim(queue: CircuitQueue, nets: Vector[Net]): Vector[Bit] = {
     while (queue.nonEmpty) {
       val gate: Gate = queue.pop
       gate.eval()

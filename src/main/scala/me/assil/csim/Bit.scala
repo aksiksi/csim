@@ -9,7 +9,6 @@ object Bit {
   val Low = Bit(0)
   val High = Bit(1)
   val NotEvaluated = Bit(-1)
-  val Unknown = Bit(-2)
 }
 
 /**
@@ -29,9 +28,11 @@ object Bit {
   *   ~b1 // == 0
   * }}}
   *
-  * @param value The value of the bit - [0, 1].
+  * @param value The value of the bit - [0, 1, -1].
   */
 class Bit(val value: Int) {
+  require(List(0, 1, -1).contains(value))
+
   /**
     * Evaluates a single bit AND.
     *

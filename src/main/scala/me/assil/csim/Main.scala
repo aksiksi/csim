@@ -2,19 +2,18 @@ package me.assil.csim
 
 import CircuitParser.parseInputFile
 
-import scala.collection.mutable.ListBuffer
+object Main {}
 
-object Main extends App {
-  val simFile: String = args(0)
-  val inputFile: String = args(1)
-
-  val simulator = new Simulator(simFile)
-  val inputs = parseInputFile(inputFile)
-
-  val ins = ListBuffer.empty[Vector[Bit]]
-
-  for (i <- 1 to 1000)
-    ins ++= inputs
-
-  println(ins.map(simulator.run(_)).mkString("\n"))
-}
+//object Main extends App {
+//  val simFile: String = "circuits/s27.ckt"
+//  val inputFile: String = "circuits/s27.in"
+//
+//  val simulator = new Simulator(simFile)
+//  val inputs = parseInputFile(inputFile)
+//
+//  val outputs = inputs.map(simulator.run)
+//
+//  println(outputs.map { out =>
+//    out.map(_.value).mkString("")
+//  }.mkString("\n"))
+//}

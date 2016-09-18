@@ -9,7 +9,7 @@ object Net {
   val OtherNet = 2
 
   /** Represents an empty [[Net]]. */
-  val NoneNet = Net(-1, Unknown, kind = OtherNet)
+  val NoneNet = Net(-1, NotEvaluated, kind = OtherNet)
 
   /** Simple implicit conversion for binary ops between Nets. */
   implicit val implNet = (n: Net) => n.value

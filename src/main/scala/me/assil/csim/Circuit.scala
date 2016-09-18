@@ -3,10 +3,10 @@ package me.assil.csim
 object Circuit {
   import Net._
 
-  /*
-  * A single gate. Needs to define an operation, input
-  * net(s), and output net.
-  * */
+  /**
+    * A single gate. Needs to define an operation, input
+    * net(s), and output net.
+    */
   trait Gate {
     val in1, in2: Net
     val out: Net

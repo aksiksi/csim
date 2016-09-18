@@ -33,6 +33,8 @@ object CircuitParser {
     val file = new File(inputFile)
     val inputs = ListBuffer.empty[Vector[Bit]]
 
+    require(file.exists(), "Input file not found!")
+
     Source.fromFile(file, enc = "utf-8").getLines().foreach { line =>
       inputs += line.map { c =>
         if (c == '0') Bit(0)
