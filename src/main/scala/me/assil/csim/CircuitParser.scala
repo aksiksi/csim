@@ -29,20 +29,20 @@ object CircuitParser {
   val LINE_SEP = "\\s+"
   @inline def splitLine(line: String): List[String] = line.split(LINE_SEP).toList
 
-  def parseInputFile(inputFile: String): ListBuffer[Vector[Bit]] = {
+  def parseInputFile(inputFile: String): Vector[Vector[Bit]] = {
     val file = new File(inputFile)
     val inputs = ListBuffer.empty[Vector[Bit]]
 
     require(file.exists(), "Input file not found!")
 
-    Source.fromFile(file, enc = "utf-8").getLines().foreach { line =>
+    Source.fromFile(file).getLines().foreach { line =>
       inputs += line.map { c =>
         if (c == '0') Bit(0)
         else Bit(1)
       }.toVector
     }
 
-    inputs
+    inputs.toVector
   }
 }
 

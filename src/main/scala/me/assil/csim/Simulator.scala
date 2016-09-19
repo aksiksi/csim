@@ -1,7 +1,6 @@
 package me.assil.csim
 
 import scala.collection.mutable.HashMap
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -80,7 +79,7 @@ class Simulator(val loc: String) {
     *
     * @param inputs A `ListBuffer` of input vectors.
     */
-  def runParallel(inputs: ListBuffer[Vector[Bit]]) = {
+  def runParallel(inputs: Vector[Vector[Bit]]) = {
     val outputs = HashMap.empty[Int, Future[Vector[Bit]]]
 
     inputs.zipWithIndex.foreach { pair =>
