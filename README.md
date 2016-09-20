@@ -31,9 +31,7 @@ Look under the directory `target/scala-2.11` for the output JAR.
 Quick example of a simple simulation. Input vector file is `a.in`, circuit description file is `a.ckt`.
 
 ```scala
-import me.assil.csim.Simulator
-import me.assil.csim.Bit
-import me.assil.csim.CircuitParser
+import me.assil.csim.{Bit, CircuitParser, Simulator}
 
 object Main extends App {
   val sim = new Simulator("a.ckt")
