@@ -36,7 +36,7 @@ import me.assil.csim.Bit
 import me.assil.csim.CircuitParser
 
 object Main extends App {
-  val sim: Simulator = new Sim("a.ckt")
+  val sim = new Simulator("a.ckt")
   val inputs: Vector[Vector[Bit]] = CircuitParser.parseInputFile("a.in")
   val outputs: Vector[Vector[Bit]] = inputs.map(sim.run)
 }
