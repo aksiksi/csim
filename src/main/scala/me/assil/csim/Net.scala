@@ -15,7 +15,8 @@ object Net {
   implicit val implNet = (n: Net) => n.value
 }
 
-/** Represents a single net in a circuit.
+/**
+  * Represents a single net in a circuit.
   *
   *  Stores the net number and the current value on the net.
   *
