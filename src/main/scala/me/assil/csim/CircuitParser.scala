@@ -29,13 +29,12 @@ object CircuitParser {
   val LINE_SEP = "\\s+"
   @inline def splitLine(line: String): List[String] = line.split(LINE_SEP).toList
 
-  def parseInputFile(inputFile: String): Vector[Vector[Bit]] = {
-    val file = new File(inputFile)
+  def parseInputFile(inputFile: File): Vector[Vector[Bit]] = {
     val inputs = ListBuffer.empty[Vector[Bit]]
 
-    require(file.exists(), "Input file not found!")
+    require(inputFile.exists(), "Input file not found!")
 
-    Source.fromFile(file).getLines().foreach { line =>
+    Source.fromFile(inputFile).getLines().foreach { line =>
       inputs += line.map { c =>
         if (c == '0') Bit(0)
         else Bit(1)
@@ -61,12 +60,11 @@ object CircuitParser {
   *
   * @throws scala.IllegalArgumentException
   *
-  * @param loc The path to the circuit description file.
+  * @param file A `File` that contains the circuit description
   */
-class CircuitParser(val loc: String) {
+class CircuitParser(val file: File) {
   import CircuitParser._
 
-  val file = new File(loc)
   require(file.exists(), "Simulation input file not found!")
 
   val lines: List[List[String]] = readFile(file)

@@ -1,5 +1,7 @@
 package me.assil.csim
 
+import java.io.File
+
 import scala.collection.mutable.HashMap
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -24,10 +26,10 @@ import Net._
   * }}}
   *
   * @author Assil Ksiksi
-  * @param loc The location of the circuit description file in the file system.
+  * @param file A `File` pointing to the circuit description file in the file system.
   */
-class Simulator(val loc: String) {
-  val parser = new CircuitParser(loc)
+class Simulator(val file: File) {
+  val parser = new CircuitParser(file)
 
   /**
     * Runs a single simulation, synchronously.
