@@ -1,6 +1,6 @@
 name := "csim"
 
-version := "1.0"
+version := "0.0.1"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 
