@@ -33,9 +33,11 @@ Quick example of a simple simulation. Input vector file is `a.in`, circuit descr
 ```scala
 import me.assil.csim.{Bit, CircuitParser, Simulator}
 
+import java.io.File
+
 object Main extends App {
-  val sim = new Simulator("a.ckt")
-  val inputs: Vector[Vector[Bit]] = CircuitParser.parseInputFile("a.in")
+  val inputs: Vector[Vector[Bit]] = CircuitParser.parseInputFile(new File("a.in"))
+  val sim = new Simulator(new File("a.ckt"))
   val outputs: Vector[Vector[Bit]] = inputs.map(sim.run)
 }
 ```

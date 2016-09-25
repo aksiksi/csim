@@ -60,35 +60,48 @@ object RandCircuit {
   * @param n Number of gates in the circuit
   * @param in Number of inputs to the circuit
   * @param out Number of outputs from the circuit
+  * @param maxFanout Maximum degree of fanout (from 1)
   * @param loc File to store circuit in
   */
-class RandCircuit(val n: Int, val in: Int, val out: Int,
-                    val loc: String) {
+class RandCircuit(val n: Int, val in: Int, val out: Int, val maxFanout: Int,
+                  val loc: String) {
   // Create a new writable file for the circuit
   val file = new PrintWriter(new File(loc))
 
   // Generate nets for inputs
   val inputs: List[Int] = (1 to in).toList
 
+  // Store outputs
+  val outputs = ListBuffer.empty[Int]
+
   // Push inputs onto tracked nets, introduce some fanout
   val nets = ListBuffer.empty[Int]
 
-  // TODO: figure out wtf is happening?
-  inputs.foreach { input =>
-    val fanout = Random.nextInt(3) + 1
-    for (i <- 1 to fanout) nets += input
+  @inline val netFanout = (net: Int) => {
+    val fanout = Random.nextInt(maxFanout) + 1
+    for (i <- 1 to fanout) nets += net
   }
 
+  inputs.foreach(netFanout)
+
   var maxNet = in+1
-  var gates = n
+  var gates = n // Current number of gates
+  var neededOut = out // Need outputs to satisfy requirement
 
   while (gates > 0) {
-    // Number of nets to select
-    val s = Random.nextInt(nets.length-1) + 1
+    // Number of gates to select
+    val s =
+      if (out >= gates) {
+        neededOut -= gates
+        gates
+      } else {
+        Random.nextInt(gates - 1) + 1
+      }
 
     println(s"Nets = $nets ")
 
     // Shuffle nets, then take first s
+    val shuffled: List[Int] = Random.shuffle(nets.toList)
     val taken: List[Int] = Random.shuffle(nets.toList).take(s)
 
     // Remove the taken nets from set of current nets
@@ -97,32 +110,75 @@ class RandCircuit(val n: Int, val in: Int, val out: Int,
     // Generate pairs of nets for gate generation
     val netPairs: List[(Int, Int)] = RandCircuit.genPairs(taken)
 
-    val gateLines: List[String] = netPairs.map { pair =>
-      val (in1, in2) = pair
-      val out = maxNet
-      maxNet += 1
+    val gateLines = (1 until s).map { _ =>
+      // Select two distinct inputs for this gate
+      val in1 = shuffled.head
+      val in2 = shuffled.takeWhile(_ != in1)
 
-      // Introduce random fanout (1-3)
-      val fanout = Random.nextInt(3) + 1
-      for (i <- 1 to fanout) nets += out
+      nets -= in1
 
-      // In case of a 1-input gate
-      if (in2 != -1) {
+      val o = maxNet
+
+      if (neededOut < out)
+        outputs += o
+      else
+        netFanout(o)
+
+      if (in2 != Nil) {
+        val i = in2.head
         val gateType = RandCircuit.GATES2(Random.nextInt(RandCircuit.GATES2.length))
-        s"$gateType $in1 $in2 $out"
+        nets -= i
+        s"$gateType $in1 $i $o"
       } else {
+        // In case of a 1-input gate
         val gateType = RandCircuit.GATES1(Random.nextInt(RandCircuit.GATES1.length))
-        s"$gateType $in1 $out"
+        s"$gateType $in1 $o"
       }
     }
 
+//    val gateLines: List[String] = netPairs.map { pair =>
+//      val (in1, in2) = pair
+//      val o = maxNet
+//      maxNet += 1
+//
+//      if (neededOut < out)
+//        outputs += o
+//      else
+//        netFanout(o)
+//
+//      if (in2 != -1) {
+//        val gateType = RandCircuit.GATES2(Random.nextInt(RandCircuit.GATES2.length))
+//        s"$gateType $in1 $in2 $o"
+//      } else {
+//        // In case of a 1-input gate
+//        val gateType = RandCircuit.GATES1(Random.nextInt(RandCircuit.GATES1.length))
+//        s"$gateType $in1 $o"
+//      }
+//    }
+//
     gateLines.foreach(line => file.write(line + "\n"))
 
     gates -= gateLines.length
+
+    if (gates == 1)
+      gates = 0
   }
 
+  // Add missing outputs by sampling available nets randomly
+//  if (neededOut > 0) {
+//    for (i <- 1 to neededOut) {
+//      val uniqueNets = nets.distinct
+//
+//      var net = uniqueNets(Random.nextInt(uniqueNets.length))
+//      while (!outputs.contains(net))
+//        net = uniqueNets.distinct(Random.nextInt(uniqueNets.length))
+//
+//      outputs += net
+//    }
+//  }
+
   file.write(s"${inputs.mkString(" ")} ${-1} \n")
-  file.write(s"${inputs.mkString(" ")} ${-1} \n")
+  file.write(s"${outputs.mkString(" ")} ${-1} \n")
 
   file.close()
 }

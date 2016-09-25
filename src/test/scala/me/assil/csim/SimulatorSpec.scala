@@ -35,16 +35,16 @@ class SimulatorSpec extends FunSuite {
     assert(testCircuit(name))
   }
 
-  test("A Simulator must throw an exception if a file is not found") {
-    val simFile = new File("not_real.ckt")
-    val inputFile = new File("not_real.in")
+  test("A Simulator must throw an exception if either the input or circuit file is not found") {
+    val simFile = "not_real.ckt"
+    val inputFile = "not_real.in"
 
     assertThrows[IllegalArgumentException] {
-      new Simulator(simFile)
+      new Simulator(new File(simFile))
     }
 
     assertThrows[IllegalArgumentException] {
-      parseInputFile(inputFile)
+      parseInputFile(new File(inputFile))
     }
   }
 }
