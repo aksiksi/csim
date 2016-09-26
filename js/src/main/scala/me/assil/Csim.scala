@@ -4,7 +4,7 @@ import me.assil.csim.{Bit, Simulator}
 
 import scala.scalajs.js.JSApp
 
-object Main extends JSApp {
+object Csim extends JSApp {
   def main(): Unit = {
     val inputs =
       Vector(
