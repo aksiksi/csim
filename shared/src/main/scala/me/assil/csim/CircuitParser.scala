@@ -1,7 +1,5 @@
 package me.assil.csim
 
-import java.io.File
-
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
@@ -10,40 +8,12 @@ import Circuit._
 import Net._
 
 /**
-  * Companion object for [[CircuitParser]]. Contains some
-  * helpful stuff.
+  * Stores number of gates and nodes in circuit.
+  *
+  * @param gates Number of gates in the circuit.
+  * @param nets Number of nets in the circuit.
   */
-object CircuitParser {
-  /**
-    * Stores number of gates and nodes in circuit.
-    *
-    * @param gates Number of gates in the circuit.
-    * @param nets Number of nets in the circuit.
-    */
-  case class CircuitStats(gates: Int, nets: Int)
-
-  /**
-    * Simple function that tokenizes each line of circuit description
-    * file.
-    */
-  val LINE_SEP = "\\s+"
-  @inline def splitLine(line: String): List[String] = line.split(LINE_SEP).toList
-
-  def parseInputFile(inputFile: File): Vector[Vector[Bit]] = {
-    val inputs = ListBuffer.empty[Vector[Bit]]
-
-    require(inputFile.exists(), "Input file not found!")
-
-    Source.fromFile(inputFile).getLines().foreach { line =>
-      inputs += line.map { c =>
-        if (c == '0') Bit(0)
-        else Bit(1)
-      }.toVector
-    }
-
-    inputs.toVector
-  }
-}
+case class CircuitStats(gates: Int, nets: Int)
 
 /**
   * Given the path to a circuit description file,
@@ -60,20 +30,10 @@ object CircuitParser {
   *
   * @throws scala.IllegalArgumentException
   *
-  * @param file A `File` that contains the circuit description
+  * @param lines A `List[List]` that contains the circuit description.
   */
-class CircuitParser(val file: File) {
-  import CircuitParser._
-
-  require(file.exists(), "Simulation input file not found!")
-
-  val lines: List[List[String]] = readFile(file)
+class CircuitParser(val lines: List[List[String]]) {
   val stats: CircuitStats = getStats
-
-  def readFile(file: File): List[List[String]] = {
-    Source.fromFile(file, enc = "utf-8").getLines().toList
-          .filter(_.nonEmpty).map(splitLine(_))
-  }
 
   def isGateLine(line: List[String]): Boolean = {
     val label = line.head

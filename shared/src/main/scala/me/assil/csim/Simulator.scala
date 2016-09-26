@@ -1,7 +1,5 @@
 package me.assil.csim
 
-import java.io.File
-
 import scala.collection.mutable.HashMap
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -15,21 +13,16 @@ import Net._
   *
   * @example {{{
   * // Create a new Simulator instance
-  * val sim = new Simulator(loc, inputs)
-  *
-  * // Start the simulation
-  * sim.start()
-  *
-  * // Use isCompleted to wait for results, or register callback(s)
-  * sim.isCompleted
-  * sim.map { f => f.onSuccess { ??? } }
+  * val sim = new Simulator(lines)
+  * val inputs = CircuitHelper.parseInputFile("inputs.in")
+  * val result = sim.run(inputs)
   * }}}
   *
   * @author Assil Ksiksi
-  * @param file A `File` pointing to the circuit description file in the file system.
+  * @param lines A `List[List]` containing the lines of the simulation file.
   */
-class Simulator(val file: File) {
-  val parser = new CircuitParser(file)
+class Simulator(val lines: List[List[String]]) {
+  val parser = new CircuitParser(lines)
 
   /**
     * Runs a single simulation, synchronously.

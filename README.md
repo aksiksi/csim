@@ -30,14 +30,19 @@ Look under the directory `target/scala-2.11` for the output JAR.
 
 Quick example of a simple simulation. Input vector file is `a.in`, circuit description file is `a.ckt`.
 
+See the example `Main` in `jvm/src/main/scala/me/assil/csim`.
+
 ```scala
-import me.assil.csim.{Bit, CircuitParser, Simulator}
+import me.assil.csim.{Bit, CircuitHelper, Simulator}
 
 import java.io.File
 
 object Main extends App {
-  val inputs: Vector[Vector[Bit]] = CircuitParser.parseInputFile(new File("a.in"))
-  val sim = new Simulator(new File("a.ckt"))
+  val inputs: Vector[Vector[Bit]] = CircuitHelper.parseInputFile(new File("a.in"))
+  val simFile: List[List[String]] = CircuitHelper.readFile(new File("a.ckt"))
+  
+  val sim = new Simulator(simFile)
+  
   val outputs: Vector[Vector[Bit]] = inputs.map(sim.run)
 }
 ```
