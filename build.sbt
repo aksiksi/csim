@@ -1,7 +1,19 @@
-name := "csim"
+name := "csim_root"
 
-version := "0.0.1"
+scalaVersion in ThisBuild := "2.11.8"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
+enablePlugins(ScalaJSPlugin)
 
-scalaVersion := "2.11.8"
+lazy val root = project.in(file(".")).aggregate(csimJS, csimJVM)
+
+lazy val csim = crossProject.in(file(".")).
+  settings(
+    name := "csim",
+    version := "0.0.1"
+  ).
+  jvmSettings(
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
+  )
+
+lazy val csimJS = csim.js
+lazy val csimJVM = csim.jvm
