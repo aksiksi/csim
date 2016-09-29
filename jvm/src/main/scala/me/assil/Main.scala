@@ -2,7 +2,8 @@ package me.assil
 
 import java.io.File
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Try}
+
 import csim.{Bit, CircuitHelper, Simulator}
 
 object Main extends App {

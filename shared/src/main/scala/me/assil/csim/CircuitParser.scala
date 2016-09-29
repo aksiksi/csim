@@ -1,7 +1,5 @@
 package me.assil.csim
 
-import scala.collection.mutable.ListBuffer
-import scala.io.Source
 import Bit.NotEvaluated
 import Circuit._
 import Net._

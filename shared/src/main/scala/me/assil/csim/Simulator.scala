@@ -3,6 +3,7 @@ package me.assil.csim
 import scala.collection.mutable.HashMap
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+
 import Circuit._
 import Net._
 

@@ -6,10 +6,6 @@ import Bit._
 import Circuit._
 
 class CircuitQueue {
-  /*
-    TODO: use a var List for more optimal stack access
-    Re-sort List on insert?
-   */
   val queue = ListBuffer.empty[Gate]
   var count = 0
 
