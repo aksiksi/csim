@@ -17,10 +17,11 @@
 
 Navigate to the root of the project directory i.e. where `build.sbt` is located. You have two options when building **csim**:
 
-* To build for Scala, run `sbt package`.
-* To build a "fat" JAR for Java, run `sbt assembly`.
+* To build for Scala, run `sbt csimJVM/package`.
+* To build a "fat" JAR for Java, run `sbt csimJVM/assembly`.
+* To build an optimized version targeting JavaScript, run `sbt csimJS/fullOptJS`.
 
-Look under the directory `target/scala-2.11` for the output JAR.
+Look under the directory `[jvm|js]/target/scala-2.11` for the output JAR.
 
 ### Testing
 
