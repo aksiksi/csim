@@ -1,29 +1,29 @@
 package me.assil
 
+/**
+  * Provides an interface to csim for use in JavaScript.
+  */
+
+import scala.scalajs.js
+import js.annotation.JSExport
+import js.JSConverters._
+
 import me.assil.csim.{Bit, Simulator}
 
-import scala.scalajs.js.JSApp
+@JSExport("Csim")
+class Csim (val lines: js.Array[String], val inputs: js.Array[js.Array[Int]]) {
+  @JSExport
+  var outputs: js.Array[js.Array[Int]] = js.Array()
 
-object Csim extends JSApp {
-  def main(): Unit = {
-    val inputs =
-      Vector(
-        Vector(Bit(0), Bit(0)),
-        Vector(Bit(0), Bit(1)),
-        Vector(Bit(1), Bit(0)),
-        Vector(Bit(1), Bit(1))
-      )
+  @JSExport
+  def run() = {
+    // Convoluted, yes - but who cares right
+    val split = lines.map(_.split(" ")).map(_.toList).toList
 
-    val lines: List[List[String]] = List(
-      List("AND", "1", "2", "3"),
-      List("INPUT", "1", "2"),
-      List("OUTPUT", "3")
-    )
+    val sim = new Simulator(split)
 
-    val sim = new Simulator(lines)
-
-    val outputs = inputs.map(sim.run)
-
-    println(outputs)
+    inputs.foreach { input =>
+      outputs += sim.run(input.map(new Bit(_)).toVector).toJSArray.map(_.value)
+    }
   }
 }

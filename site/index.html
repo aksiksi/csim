@@ -7,7 +7,11 @@
 <body>
     <script type="text/javascript" src="../js/target/scala-2.11/csim-fastopt.js"></script>
     <script type="text/javascript">
-        me.assil.Csim().main();
+        var circuit = ["AND 1 2 3", "INPUT 1 2", "OUTPUT 3"];
+        var inputs = [[1,0], [0,1]];
+        var c = new Csim(circuit, inputs);
+        c.run();
+        console.log(c.outputs);
     </script>
 </body>
 </html>
