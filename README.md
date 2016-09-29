@@ -46,3 +46,20 @@ object Main extends App {
   val outputs: Vector[Vector[Bit]] = inputs.map(sim.run)
 }
 ```
+
+To use Csim.js from JavaScript, use the example below to get an idea of the API:
+
+```javascript
+// Sample circuit input file, split into lines
+var circuit = ["AND 1 2 3", "INPUT 1 2", "OUTPUT 3"];
+
+// Two input vectors
+var inputs = [[1,0], [0,1]];
+
+// Init the simulator, and run it
+var c = new Csim(circuit, inputs);
+c.run();
+
+// Log the result - Array[Array[Int]]
+console.log(c.outputs);
+```
