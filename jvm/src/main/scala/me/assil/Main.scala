@@ -30,6 +30,7 @@ object Main extends App {
       }
     } match {
       case Failure(e) => println("Error: " + e)
+      case _ => Unit
     }
   }
 

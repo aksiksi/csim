@@ -4,12 +4,12 @@ package me.assil
   * Provides an interface to csim for use in JavaScript.
   */
 
-import scala.util.{Failure, Try}
+import com.sun.net.httpserver.Authenticator.Success
 
+import scala.util.{Failure, Success, Try}
 import scala.scalajs.js
 import js.annotation.JSExport
 import js.JSConverters._
-
 import me.assil.csim.{Bit, Simulator}
 
 @JSExport("Csim")
@@ -30,6 +30,7 @@ class Csim (val lines: js.Array[String], val inputs: js.Array[js.Array[Int]]) {
       }
     } match {
       case Failure(e) => println("Error: " + e)
+      case _ => Unit
     }
   }
 }
