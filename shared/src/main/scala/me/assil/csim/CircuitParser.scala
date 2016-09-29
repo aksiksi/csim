@@ -51,7 +51,7 @@ class CircuitParser(val lines: List[List[String]]) {
       line.tail.map(_.toInt).max
     }.max
 
-    val inputs = Try { lines.filter(_.head == "INPUT").head }
+    val inputs = Try { lines.filter(_.head == "INPUT").head.tail.filter(_.toInt != -1) }
 
     inputs match {
       case Failure(e) => CircuitStats(gates, nets, 0)
