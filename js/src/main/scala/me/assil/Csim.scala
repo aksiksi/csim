@@ -4,6 +4,8 @@ package me.assil
   * Provides an interface to csim for use in JavaScript.
   */
 
+import scala.util.{Failure, Try}
+
 import scala.scalajs.js
 import js.annotation.JSExport
 import js.JSConverters._
@@ -17,13 +19,17 @@ class Csim (val lines: js.Array[String], val inputs: js.Array[js.Array[Int]]) {
 
   @JSExport
   def run() = {
-    // Convoluted, yes - but who cares right
-    val split = lines.map(_.split(" ")).map(_.toList).toList
+    Try {
+      // Convoluted, yes - but who cares, right?
+      val split = lines.map(_.split(" ")).map(_.toList).toList
 
-    val sim = new Simulator(split)
+      val sim = new Simulator(split)
 
-    inputs.foreach { input =>
-      outputs += sim.run(input.map(new Bit(_)).toVector).toJSArray.map(_.value)
+      inputs.foreach { input =>
+        outputs += sim.run(input.map(new Bit(_)).toVector).toJSArray.map(_.value)
+      }
+    } match {
+      case Failure(e) => println("Error: " + e)
     }
   }
 }

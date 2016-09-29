@@ -3,9 +3,10 @@ package me.assil.csim
 import scala.collection.mutable.HashMap
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import Circuit._
 import Net._
+
+import scala.util.Try
 
 /**
   * A simulator instance allows you to execute parallel circuit
@@ -62,6 +63,11 @@ class Simulator(val lines: List[List[String]]) {
     * @return A `Vector[Bit]` that contains the output.
     */
   def run(input: Vector[Bit]): Vector[Bit] = {
+    // Check if number of inputs matches
+    val circuitStats = parser.stats
+    require(input.length == circuitStats.inputs, "Please provide an equal length input!")
+
+    // Run simulation
     val (queue, nets) = initRun(input)
     runSim(queue, nets)
   }

@@ -2,10 +2,11 @@ package me.assil.csim
 
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
-
 import Bit.NotEvaluated
 import Circuit._
 import Net._
+
+import scala.util.{Failure, Success, Try}
 
 /**
   * Stores number of gates and nodes in circuit.
@@ -13,7 +14,7 @@ import Net._
   * @param gates Number of gates in the circuit.
   * @param nets Number of nets in the circuit.
   */
-case class CircuitStats(gates: Int, nets: Int)
+case class CircuitStats(gates: Int, nets: Int, inputs: Int)
 
 /**
   * Given the path to a circuit description file,
@@ -35,20 +36,27 @@ case class CircuitStats(gates: Int, nets: Int)
 class CircuitParser(val lines: List[List[String]]) {
   val stats: CircuitStats = getStats
 
+  require(stats.inputs > 0, "Circuit has 0 inputs.")
+
   def isGateLine(line: List[String]): Boolean = {
     val label = line.head
     label != "INPUT" && label != "OUTPUT"
   }
 
   def getStats: CircuitStats = {
-    val gateLines = lines.filter(isGateLine(_))
+    val gateLines = lines.filter(isGateLine)
 
     val gates = gateLines.length
     val nets = gateLines.map { line =>
       line.tail.map(_.toInt).max
     }.max
 
-    CircuitStats(gates, nets)
+    val inputs = Try { lines.filter(_.head == "INPUT").head }
+
+    inputs match {
+      case Failure(e) => CircuitStats(gates, nets, 0)
+      case Success(v) => CircuitStats(gates, nets, v.length)
+    }
   }
 
   def genNets: Vector[Net] = {
@@ -73,7 +81,7 @@ class CircuitParser(val lines: List[List[String]]) {
   def getCircuitQueue(nets: Vector[Net]): CircuitQueue = {
     val queue = new CircuitQueue
 
-    lines.filter(isGateLine(_)).foreach { line =>
+    lines.filter(isGateLine).foreach { line =>
       val g = parseGate(line, nets)
       queue.push(g)
     }

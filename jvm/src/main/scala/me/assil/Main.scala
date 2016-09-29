@@ -13,29 +13,23 @@ object Main extends App {
   }
 
   def processInputs() = {
-    // Read lines from provided files
-    val t = Try {
+    Try {
+      // Read lines from provided files
       val simFile = new File(args(0))
       val inFile = new File(args(1))
 
-      (
-        CircuitHelper.readFile(simFile),
-        CircuitHelper.parseInputFile(inFile)
-      )
-    }
+      val lines = CircuitHelper.readFile(simFile)
+      val inputs = CircuitHelper.parseInputFile(inFile)
 
-    t match {
+      val sim = new Simulator(lines)
+
+      val outputs: Vector[Vector[Bit]] = inputs.map(sim.run)
+
+      println {
+        outputs.map { out => out.map(_.value).mkString("") }.mkString("\n")
+      }
+    } match {
       case Failure(e) => println("Error: " + e)
-      case Success(v) =>
-        val (lines, inputs) = v
-        val sim = new Simulator(lines)
-
-        val outputs: Vector[Vector[Bit]] = inputs.map(sim.run)
-
-        println {
-          outputs.map { out => out.map(_.value).mkString("") }
-                 .mkString("\n")
-        }
     }
   }
 
