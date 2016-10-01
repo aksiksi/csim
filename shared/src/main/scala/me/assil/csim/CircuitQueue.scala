@@ -3,7 +3,7 @@ package me.assil.csim
 import scala.collection.mutable.ListBuffer
 
 import Bit._
-import Circuit._
+import Gate._
 
 class CircuitQueue {
   val queue = ListBuffer.empty[Gate]
@@ -18,7 +18,7 @@ class CircuitQueue {
     count -= 1
 
     val gate = queue.zipWithIndex.filter { pair =>
-      val (gate, idx) = pair
+      val (gate, _) = pair
 
       // Case 1: 1-input gate, Case 2: 2-input
       if (gate.in2.n == -1) gate.in1.value != NotEvaluated
@@ -30,5 +30,5 @@ class CircuitQueue {
 
   def nonEmpty: Boolean = count != 0
 
-  override def toString: String = s"CircuitQueue(${count})"
+  override def toString: String = s"CircuitQueue($count)"
 }

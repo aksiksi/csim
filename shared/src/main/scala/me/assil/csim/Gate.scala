@@ -1,6 +1,6 @@
 package me.assil.csim
 
-object Circuit {
+object Gate {
   import Net._
 
   /**
@@ -8,10 +8,14 @@ object Circuit {
     * net(s), and output net.
     */
   trait Gate {
+    // A gate must have 1 or 2 inputs, and 1 output
     val in1, in2: Net
     val out: Net
 
+    // A gate needs to define an operation
     def op: Bit
+
+    // This is what happens when a gate is evaluated
     def eval(): Unit = { out.value = op }
   }
 

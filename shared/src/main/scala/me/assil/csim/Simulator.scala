@@ -4,10 +4,8 @@ import scala.collection.mutable.HashMap
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import Circuit._
+import Gate._
 import Net._
-
-import scala.util.Try
 
 /**
   * A simulator instance allows you to execute parallel circuit

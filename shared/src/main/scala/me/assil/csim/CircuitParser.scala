@@ -1,7 +1,7 @@
 package me.assil.csim
 
 import Bit.NotEvaluated
-import Circuit._
+import Gate._
 import Net._
 
 import scala.util.{Failure, Success, Try}
