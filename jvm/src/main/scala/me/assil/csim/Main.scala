@@ -1,12 +1,10 @@
-package me.assil
+package me.assil.csim
 
 import java.io.File
 
-import scala.util.{Failure, Try}
-
-import csim.{Bit, CircuitHelper, Simulator}
-
 import Util.Time
+
+import scala.util.{Failure, Try}
 
 object Main extends App {
   def helpMessage() = {
