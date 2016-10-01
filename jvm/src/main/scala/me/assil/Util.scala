@@ -7,11 +7,16 @@ object Util {
     * Simple function to measure the execution time of a code block.
     *
     * @param body Code to execute
-    * @param msg Message to display with execution time (optional)
+    * @return The value returned by the code block
     */
-  def Time(body: => Unit)(msg: String = "Executed in"): Unit = {
+  def Time[T](body: => T): T = {
     val start = Clock.systemUTC().millis()
-    body
-    println(s"$msg ${Clock.systemUTC().millis() - start}ms")
+
+    // Execute code block and save result
+    val result = body
+
+    println(s"Executed in: ${Clock.systemUTC().millis() - start}ms")
+
+    result
   }
 }

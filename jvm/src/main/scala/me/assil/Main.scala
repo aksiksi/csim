@@ -33,7 +33,7 @@ object Main extends App {
         println {
           outputs.map { out => out.map(_.value).mkString("") }.mkString("\n")
         }
-      } ("Execution time:")
+      }
     } match {
       case Failure(e) => println("Error: " + e)
       case _ => Unit
