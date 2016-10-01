@@ -25,12 +25,17 @@ object SimulatorSpec {
 class SimulatorSpec extends FunSuite {
   import SimulatorSpec._
 
-  test("A Simulator should evaluate the basic test circuit") {
+  test("A Simulator should evaluate the circuit s27") {
     val name = "s27"
     assert(testCircuit(name))
   }
 
-  test("A Simulator should evaluate the largest test circuit") {
+  test("A Simulator should evaluate the circuit s298f_2") {
+    val name = "s298f_2"
+    assert(testCircuit(name))
+  }
+
+  test("A Simulator should evaluate the circuit s349f_2") {
     val name = "s349f_2"
     assert(testCircuit(name))
   }
