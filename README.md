@@ -21,11 +21,13 @@ Navigate to the root of the project directory i.e. where `build.sbt` is located.
 * To build a "fat" JAR for Java, run `sbt csimJVM/assembly`.
 * To build an optimized version targeting JavaScript, run `sbt csimJS/fullOptJS`.
 
-Look under the directory `[jvm|js]/target/scala-2.11` for the output JAR.
+Look under the directory `[jvm|js]/target/scala-2.11` for the output JAR or JS file.
 
 ### Testing
 
-**csim** has a growing test suite. To run the tests, simply type `sbt test`. All tests should pass (green).
+**csim** has a growing test suite written using [ScalaTest](http://www.scalatest.org/). To run the tests, simply type `sbt csimJVM/test`. All tests should pass (green).
+
+**Note**: only the JVM target has a test suite, but since the bulk of the logic is shared between the JVM and JS targets, this is not a huge issue.
 
 ### Usage
 
@@ -62,5 +64,5 @@ var c = new Csim(circuit, inputs);
 c.run();
 
 // Log the result - Array[Array[Int]]
-console.log(c.outputs);
+console.log(c.outputs); // => [[0], [0]]
 ```
