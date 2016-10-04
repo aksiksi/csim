@@ -1,11 +1,6 @@
 package me.assil.csim
 
-import scala.collection.mutable.HashMap
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import Gate._
-import Net._
 
 /**
   * A simulator instance allows you to execute parallel circuit
@@ -41,7 +36,6 @@ class Simulator(val lines: List[List[String]]) {
       gate.eval()
     }
 
-//    nets.filter(_.kind == OutputNet).map(_.value)
     outputNets.map(out => nets.filter(_.n == out).head).map(_.value)
   }
 
@@ -73,24 +67,5 @@ class Simulator(val lines: List[List[String]]) {
     // Run simulation
     val (queue, nets) = initRun(input)
     runSim(queue, nets)
-  }
-
-  /**
-    * Starts a parallel simulation for a set of input vectors.
-    *
-    * Calls [[me.assil.csim.Simulator.run]] for each input vector,
-    * and wraps the result in a `Future`.
-    *
-    * @param inputs A `ListBuffer` of input vectors.
-    */
-  def runParallel(inputs: Vector[Vector[Bit]]) = {
-    val outputs = HashMap.empty[Int, Future[Vector[Bit]]]
-
-    inputs.zipWithIndex.foreach { pair =>
-      val (input, idx) = pair
-      outputs += (idx -> Future { run(input) })
-    }
-
-    outputs
   }
 }
