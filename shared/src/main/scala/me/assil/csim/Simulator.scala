@@ -24,6 +24,10 @@ import Net._
 class Simulator(val lines: List[List[String]]) {
   val parser = new CircuitParser(lines)
 
+  // Keep track of order as defined in file
+  val inputNets = parser.ioNets.inputs
+  val outputNets = parser.ioNets.outputs
+
   /**
     * Runs a single simulation, synchronously.
     *
@@ -37,12 +41,12 @@ class Simulator(val lines: List[List[String]]) {
       gate.eval()
     }
 
-    nets.filter(_.kind == OutputNet).map(_.value)
+//    nets.filter(_.kind == OutputNet).map(_.value)
+    outputNets.map(out => nets.filter(_.n == out).head).map(_.value)
   }
 
   private def initRun(input: Vector[Bit]): (CircuitQueue, Vector[Net]) = {
     val nets: Vector[Net] = parser.genNets
-    val inputNets: Vector[Int] = nets.filter(_.kind == InputNet).map(_.n)
 
     input.zipWithIndex.foreach { pair =>
       val (v, i) = pair

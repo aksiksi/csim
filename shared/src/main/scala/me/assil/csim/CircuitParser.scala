@@ -14,6 +14,8 @@ import scala.util.{Failure, Success, Try}
   */
 case class CircuitStats(gates: Int, nets: Int, inputs: Int)
 
+case class IONets(inputs: Vector[Int], outputs: Vector[Int])
+
 /**
   * Given the path to a circuit description file,
   * [[CircuitParser]] parses the file and stores two main things:
@@ -36,6 +38,8 @@ class CircuitParser(val lines: List[List[String]]) {
 
   require(stats.inputs > 0, "Circuit has 0 inputs.")
 
+  val ioNets: IONets = getIONets
+
   def isGateLine(line: List[String]): Boolean = {
     val label = line.head
     label != "INPUT" && label != "OUTPUT"
@@ -55,6 +59,20 @@ class CircuitParser(val lines: List[List[String]]) {
       case Failure(e) => CircuitStats(gates, nets, 0)
       case Success(v) => CircuitStats(gates, nets, v.length)
     }
+  }
+
+  // Preserve order of inputs and outputs as listed in circuit file
+  def getIONets: IONets = {
+    val nets: List[Vector[Int]] = {
+      lines.filter(!isGateLine(_)).map { line =>
+        line.head match {
+          case "INPUT" | "OUTPUT" =>
+            line.tail.map(_.toInt).filter(_ != -1).toVector
+        }
+      }
+    }
+
+    IONets(nets.head, nets(1))
   }
 
   def genNets: Vector[Net] = {
