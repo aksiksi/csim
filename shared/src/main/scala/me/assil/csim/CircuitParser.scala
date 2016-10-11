@@ -65,10 +65,7 @@ class CircuitParser(val lines: List[List[String]]) {
   def getIONets: IONets = {
     val nets: List[Vector[Int]] = {
       lines.filter(!isGateLine(_)).map { line =>
-        line.head match {
-          case "INPUT" | "OUTPUT" =>
-            line.tail.map(_.toInt).filter(_ != -1).toVector
-        }
+        line.tail.map(_.toInt).filter(_ != -1).toVector
       }
     }
 
