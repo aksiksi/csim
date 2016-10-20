@@ -3,7 +3,6 @@ scala:
     - 2.11.8
 jdk:
     - oraclejdk8
-    - openjdk8
 script:
     - sbt csimJVM/test
     - sbt csimJVM/compile
