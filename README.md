@@ -1,5 +1,7 @@
 ## csim
 
+[![Build Status](https://travis-ci.org/aksiksi/csim.svg?branch=master)](https://travis-ci.org/aksiksi/csim)
+
 **csim** is a simple digital circuit simulator I'm working on for a course project. It is written in pure Scala with no dependencies.
 
 ### Goals
@@ -43,9 +45,9 @@ import java.io.File
 object Main extends App {
   val inputs: Vector[Vector[Bit]] = CircuitHelper.parseInputFile(new File("a.in"))
   val simFile: List[List[String]] = CircuitHelper.readFile(new File("a.ckt"))
-  
+
   val sim = new Simulator(simFile)
-  
+
   val outputs: Vector[Vector[Bit]] = inputs.map(sim.run)
 }
 ```
