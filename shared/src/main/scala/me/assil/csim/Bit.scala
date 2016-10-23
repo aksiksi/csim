@@ -31,6 +31,8 @@ object Bit {
   * @param value The value of the bit - [0, 1, -1].
   */
 class Bit(val value: Int) {
+  import Bit._
+
   require(List(0, 1, -1).contains(value))
 
   /**
@@ -40,8 +42,8 @@ class Bit(val value: Int) {
     * @return The result of a binary AND operation.
     */
   def &(other: Bit): Bit = {
-    if (other.value == 1 && this.value == 1) Bit(1)
-    else Bit(0)
+    if (other == High && this == High) High
+    else Low
   }
 
   /**
@@ -51,8 +53,8 @@ class Bit(val value: Int) {
     * @return The result of a binary OR operation.
     */
   def |(other: Bit): Bit = {
-    if (other.value == 0 && this.value == 0) Bit(0)
-    else Bit(1)
+    if (other == Low && this == Low) Low
+    else High
   }
 
   /**
@@ -62,8 +64,9 @@ class Bit(val value: Int) {
     * @return The result of a binary XOR operation.
     */
   def ^(other: Bit): Bit = {
-    if (other.value != this.value) Bit(1)
-    else Bit(0)
+    if (other == NotEvaluated || this == NotEvaluated) NotEvaluated
+    else if (other == this) Low
+    else High
   }
 
   /**
@@ -72,8 +75,8 @@ class Bit(val value: Int) {
     * @return The result of a binary NOT operation.
     */
   def unary_~(): Bit = {
-    if (this.value == 0) Bit(1)
-    else Bit(0)
+    if (this == Low) High
+    else Low
   }
 
   def ==(other: Bit): Boolean = this.value == other.value

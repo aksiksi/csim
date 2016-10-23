@@ -4,6 +4,7 @@ import scala.collection.mutable.ListBuffer
 
 import Bit._
 import Gate._
+import Net.NoneNet
 
 class CircuitQueue {
   val queue = ListBuffer.empty[Gate]
@@ -20,8 +21,10 @@ class CircuitQueue {
     val gate = queue.zipWithIndex.filter { pair =>
       val (gate, _) = pair
 
-      // Case 1: 1-input gate, Case 2: 2-input
-      if (gate.in2.n == -1) gate.in1.value != NotEvaluated
+      // Case 1: 1-input gate
+      if (gate.in2 == NoneNet) gate.in1.value != NotEvaluated
+
+      // Case 2: 2-input gate
       else gate.in1.value != NotEvaluated && gate.in2.value != NotEvaluated
     }.head
 
