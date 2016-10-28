@@ -21,7 +21,7 @@ class Csim (val lines: js.Array[String], val inputs: js.Array[js.Array[Int]]) {
       // Convoluted, yes - but who cares, right?
       val split = lines.map(_.split(" ")).map(_.toList).toList
 
-      val sim = new Simulator(split)
+      val sim = new CircuitSimulator(split)
 
       inputs.foreach { input =>
         outputs += sim.run(input.map(new Bit(_)).toVector).toJSArray.map(_.value)

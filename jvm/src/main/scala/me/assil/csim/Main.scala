@@ -24,7 +24,7 @@ object Main extends App {
         val lines = CircuitHelper.readFile(simFile)
         val inputs = CircuitHelper.parseInputFile(inFile)
 
-        val sim = new Simulator(lines)
+        val sim = new CircuitSimulator(lines)
 
         val outputs: Vector[Vector[Bit]] = inputs.map(sim.run)
 
