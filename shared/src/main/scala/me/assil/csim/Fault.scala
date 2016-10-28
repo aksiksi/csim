@@ -1,6 +1,4 @@
-package me.assil.cflt
-
-import me.assil.csim.Bit
+package me.assil.csim
 
 /**
   * Represents a single stuck-at-fault.

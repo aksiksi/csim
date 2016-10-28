@@ -2,13 +2,13 @@ package me.assil.csim
 
 import Gate._
 
+import scala.collection.mutable.HashSet
+
 /**
-  * A simulator instance allows you to execute parallel circuit
-  * simulations on a `ListBuffer` of [[me.assil.csim.Bit]] vectors.
   *
   * @example {{{
-  * // Create a new Simulator instance
-  * val sim = new Simulator(lines)
+  * // Create a new CircuitSimulator instance
+  * val sim = new CircuitSimulator(lines)
   * val inputs = CircuitHelper.parseInputFile("inputs.in")
   * val result = sim.run(inputs)
   * }}}
@@ -16,7 +16,7 @@ import Gate._
   * @author Assil Ksiksi
   * @param lines A `List[List]` containing the lines of the simulation file.
   */
-class Simulator(val lines: List[List[String]]) {
+class CircuitSimulator(val lines: List[List[String]]) {
   val parser = new CircuitParser(lines)
 
   // Keep track of order as defined in file
@@ -33,6 +33,8 @@ class Simulator(val lines: List[List[String]]) {
   private def runSim(queue: CircuitQueue, nets: Vector[Net]): Vector[Bit] = {
     while (queue.nonEmpty) {
       val gate: Gate = queue.pop
+
+      // Evaluate the gate and fault lists
       gate.eval()
     }
 
@@ -51,6 +53,21 @@ class Simulator(val lines: List[List[String]]) {
     val queue = parser.getCircuitQueue(nets)
 
     (queue, nets)
+  }
+
+  def runFaults(input: Vector[Bit])(faults: List[Fault]): List[HashSet[Fault]] = {
+    // Check if number of inputs matches
+    val circuitStats = parser.stats
+    require(input.length == circuitStats.inputs, "Please provide an equal length input!")
+
+    // Setup simulation
+    val (queue, nets) = initRun(input)
+
+    // TODO: Inject faults
+
+    runSim(queue, nets)
+
+    ???
   }
 
   /**

@@ -4,6 +4,7 @@ import Bit.NotEvaluated
 import Gate._
 import Net._
 
+import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -73,7 +74,10 @@ class CircuitParser(val lines: List[List[String]]) {
   }
 
   def genNets: Vector[Net] = {
-    val nets = (1 to stats.nets).toVector.map(Net(_, NotEvaluated , kind = OtherNet))
+    val nets = (1 to stats.nets).toVector.map {
+      Net(_, NotEvaluated, kind = OtherNet, mutable.HashSet[Fault]())
+    }
+
     parseIO(lines, nets)
   }
 
