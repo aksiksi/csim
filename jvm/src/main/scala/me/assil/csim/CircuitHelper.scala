@@ -18,7 +18,7 @@ object CircuitHelper {
 
     require(file.exists(), "Input file not found!")
 
-    Source.fromFile(file, enc = "utf=8").getLines().foreach { line =>
+    Source.fromFile(file, enc = "utf-8").getLines().foreach { line =>
       inputs += line.map { c =>
         if (c == '0') Bit(0)
         else Bit(1)
