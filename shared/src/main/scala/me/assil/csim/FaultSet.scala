@@ -13,11 +13,12 @@ class FaultSet(var fs: mutable.LinkedHashSet[Fault]) {
   def -(f: Fault): FaultSet = new FaultSet(this.fs.filter(_ != f))
   def -=(f: Fault): Unit = { this.fs = this.fs.filter(_ != f) }
   def +=(f: Fault): Unit = this.fs += f
-  def ==(other: FaultSet): Boolean = this.fs.forall(other.contains(_))
 
   def nonEmpty: Boolean = this.fs.nonEmpty
   def isEmpty: Boolean = this.fs.isEmpty
   def contains(f: Fault): Boolean = this.fs.filter(_ == f).nonEmpty
+
+  def ==(other: FaultSet): Boolean = this.fs == other.fs
 
   override def toString: String = fs.toString()
 }
