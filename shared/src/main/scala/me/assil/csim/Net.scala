@@ -2,8 +2,6 @@ package me.assil.csim
 
 import Bit._
 
-import scala.collection.mutable
-
 object Net {
   // Track the type of Net
   val InputNet = 0
@@ -11,7 +9,7 @@ object Net {
   val OtherNet = 2
 
   /** Represents an empty [[Net]]. */
-  val NoneNet = Net(-1, NotEvaluated, kind = OtherNet, mutable.HashSet[Fault]())
+  val NoneNet = Net(-1, NotEvaluated, kind = OtherNet, new FaultSet)
 
   /** Simple implicit conversion for binary ops between Nets. */
   implicit val implNet = (n: Net) => n.value
@@ -31,4 +29,4 @@ object Net {
   *  @param n The node number (or label). Must be unique.
   *  @param value The current value on the node. Values found in [[Bit]] object.
   */
-case class Net(n: Int, var value: Bit, var kind: Int, var faultSet: mutable.HashSet[Fault])
+case class Net(n: Int, var value: Bit, var kind: Int, var faultSet: FaultSet)

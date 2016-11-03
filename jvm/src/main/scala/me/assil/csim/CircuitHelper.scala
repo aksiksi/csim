@@ -13,12 +13,12 @@ object CircuitHelper {
   val LINE_SEP = "\\s+"
   @inline def splitLine(line: String): List[String] = line.split(LINE_SEP).toList
 
-  def parseInputFile(inputFile: File): Vector[Vector[Bit]] = {
+  def parseInputFile(file: File): Vector[Vector[Bit]] = {
     val inputs = ListBuffer.empty[Vector[Bit]]
 
-    require(inputFile.exists(), "Input file not found!")
+    require(file.exists(), "Input file not found!")
 
-    Source.fromFile(inputFile).getLines().foreach { line =>
+    Source.fromFile(file, enc = "utf=8").getLines().foreach { line =>
       inputs += line.map { c =>
         if (c == '0') Bit(0)
         else Bit(1)
@@ -28,10 +28,16 @@ object CircuitHelper {
     inputs.toVector
   }
 
-  def readFile(file: File): List[List[String]] = {
+  def readSimFile(file: File): List[List[String]] = {
     require(file.exists(), "Simulation input file not found!")
 
     Source.fromFile(file, enc = "utf-8").getLines().toList
-      .filter(_.nonEmpty).map(splitLine(_))
+      .filter(_.nonEmpty).map(splitLine)
+  }
+
+  def parseFaultFile(file: File): Vector[Fault] = {
+    require(file.exists(), "Fault file not found!")
+
+    Fault.faultParser(Source.fromFile(file, enc = "utf-8").getLines().toList.map(splitLine))
   }
 }

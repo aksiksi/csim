@@ -19,11 +19,11 @@ object Main extends App {
       val simFile = new File(args(0))
       val inFile = new File(args(1))
 
-      // Measure the execution of the simulation
-      Time {
-        val lines = CircuitHelper.readFile(simFile)
-        val inputs = CircuitHelper.parseInputFile(inFile)
+      val lines = CircuitHelper.readSimFile(simFile)
+      val inputs = CircuitHelper.parseInputFile(inFile)
 
+      // Measure the execution time of the simulation
+      Time {
         val sim = new CircuitSimulator(lines)
 
         val outputs: Vector[Vector[Bit]] = inputs.map(sim.run)
@@ -35,6 +35,31 @@ object Main extends App {
     } match {
       case Failure(e) => println("Error: " + e)
       case _ => Unit
+    }
+  }
+
+  def testCoverage() = {
+    Try {
+      // Read lines from provided files
+      val simFile = new File(args(0))
+      val inFile = new File(args(1))
+
+      val lines = CircuitHelper.readSimFile(simFile)
+      val inputs = CircuitHelper.parseInputFile(inFile)
+
+      // Perform fault coverage test
+      Time {
+        val sim = new CircuitSimulator(lines)
+
+        // If no file provided, generate all faults
+        val faults =
+          if (args.length == 3) {
+            val faultFile = new File(args(2))
+            CircuitHelper.parseFaultFile(faultFile)
+          } else {
+            Fault.genAllFaults(sim.circuitStats.nets)
+          }
+      }
     }
   }
 

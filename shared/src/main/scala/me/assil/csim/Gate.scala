@@ -1,7 +1,5 @@
 package me.assil.csim
 
-import scala.collection.mutable
-
 object Gate {
   import Bit._
   import Net._
@@ -19,15 +17,18 @@ object Gate {
     def op: Bit
 
     /** The gate's fault list function */
-    def faultFn: mutable.HashSet[Fault]
+    def faultFn: FaultSet
 
     /** Evaluates the output fault list */
-    def faultEval: mutable.HashSet[Fault] = {
+    def faultEval: FaultSet = {
       // Remove any faults that are invalid based on FF values
-      for (net <- Seq(in1, in2))
+      for (
+        net <- Seq(in1, in2)
+        if net.value != NotEvaluated
+      )
         net.faultSet -= Fault(net.n, net.value)
 
-      // Evaluation step
+      // Evaluation step; return set without output fault-free
       faultFn - Fault(out.n, out.value)
     }
 
@@ -45,11 +46,11 @@ object Gate {
   case class And(in1: Net, in2: Net, out: Net) extends Gate {
     def op = in1 & in2
 
-    val f1 = in1.faultSet
-    val f2 = in2.faultSet
-    val f3 = out.faultSet
-
     def faultFn = {
+      val f1 = in1.faultSet
+      val f2 = in2.faultSet
+      val f3 = out.faultSet
+
       (in1.value, in2.value) match {
         case (Low, Low) => (f1 & f2) union f3
         case (Low, High) => (f1 &~ f2) union f3
@@ -62,11 +63,11 @@ object Gate {
   case class Nand(in1: Net, in2: Net, out: Net) extends Gate {
     def op = ~(in1 & in2)
 
-    val f1 = in1.faultSet
-    val f2 = in2.faultSet
-    val f3 = out.faultSet
-
     def faultFn = {
+      val f1 = in1.faultSet
+      val f2 = in2.faultSet
+      val f3 = out.faultSet
+
       (in1.value, in2.value) match {
         case (Low, Low) => (f1 & f2) union f3
         case (Low, High) => (f1 &~ f2) union f3
@@ -79,11 +80,11 @@ object Gate {
   case class Or(in1: Net, in2: Net, out: Net) extends Gate {
     def op = in1 | in2
 
-    val f1 = in1.faultSet
-    val f2 = in2.faultSet
-    val f3 = out.faultSet
-
     def faultFn = {
+      val f1 = in1.faultSet
+      val f2 = in2.faultSet
+      val f3 = out.faultSet
+
       (in1.value, in2.value) match {
         case (Low, Low) => (f1 union f2) union f3
         case (Low, High) => (f2 &~ f1) union f3
@@ -96,11 +97,11 @@ object Gate {
   case class Nor(in1: Net, in2: Net, out: Net) extends Gate {
     def op = ~(in1 | in2)
 
-    val f1 = in1.faultSet
-    val f2 = in2.faultSet
-    val f3 = out.faultSet
-
     def faultFn = {
+      val f1 = in1.faultSet
+      val f2 = in2.faultSet
+      val f3 = out.faultSet
+
       (in1.value, in2.value) match {
         case (Low, Low) => (f1 union f2) union f3
         case (Low, High) => (f2 &~ f1) union f3
@@ -113,17 +114,12 @@ object Gate {
   case class Xor(in1: Net, in2: Net, out: Net) extends Gate {
     def op = in1 ^ in2
 
-    val f1 = in1.faultSet
-    val f2 = in2.faultSet
-    val f3 = out.faultSet
-
     def faultFn = {
-      (in1.value, in2.value) match {
-        case (Low, Low) => (f1 union f2) union f3
-        case (Low, High) => (f2 &~ f1) union f3
-        case (High, Low) => (f1 &~ f2) union f3
-        case (High, High) => (f1 & f2) union f3
-      }
+      val f1 = in1.faultSet
+      val f2 = in2.faultSet
+      val f3 = out.faultSet
+
+      ((f1 union f2) &~ (f1 & f2)) union f3
     }
   }
 
@@ -131,19 +127,23 @@ object Gate {
     val in2 = NoneNet
     def op = ~in1
 
-    val f1 = in1.faultSet
-    val f3 = out.faultSet
+    def faultFn = {
+      val f1 = in1.faultSet
+      val f3 = out.faultSet
 
-    def faultFn = f1 union f3
+      f1 union f3
+    }
   }
 
   case class Buf(in1: Net, out: Net) extends Gate {
     val in2 = NoneNet
     def op = in1
 
-    val f1 = in1.faultSet
-    val f3 = out.faultSet
+    def faultFn = {
+      val f1 = in1.faultSet
+      val f3 = out.faultSet
 
-    def faultFn = f1 union f3
+      f1 union f3
+    }
   }
 }

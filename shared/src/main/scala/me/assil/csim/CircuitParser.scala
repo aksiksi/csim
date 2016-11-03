@@ -1,10 +1,10 @@
 package me.assil.csim
 
-import Bit.NotEvaluated
+import Bit._
+import Fault._
 import Gate._
 import Net._
 
-import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -75,14 +75,14 @@ class CircuitParser(val lines: List[List[String]]) {
 
   def genNets: Vector[Net] = {
     val nets = (1 to stats.nets).toVector.map {
-      Net(_, NotEvaluated, kind = OtherNet, mutable.HashSet[Fault]())
+      Net(_, NotEvaluated, kind = OtherNet, new FaultSet)
     }
 
     parseIO(lines, nets)
   }
 
   def parseGate(line: List[String], nets: Vector[Net]): Gate = {
-    val t = line.tail.map(n => nets(n.toInt-1))
+    val t: List[Net] = line.tail.map(n => nets(n.toInt-1))
 
     line.head match {
       case "AND" => And(t.head, t(1), t(2))

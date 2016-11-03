@@ -33,7 +33,7 @@ object Bit {
 class Bit(val value: Int) {
   import Bit._
 
-  require(List(0, 1, -1).contains(value))
+  require(Seq(0, 1, -1).contains(value))
 
   /**
     * Evaluates a single bit AND.
@@ -84,4 +84,13 @@ class Bit(val value: Int) {
   def !=(other: Bit): Boolean = this.value != other.value
 
   override def toString: String = s"Bit(${this.value})"
+
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case other: Bit => this.hashCode == other.hashCode
+      case _ => false
+    }
+  }
+
+  override def hashCode(): Int = value
 }

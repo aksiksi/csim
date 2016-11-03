@@ -1,10 +1,11 @@
 package me.assil.csim
 
+import Bit._
+import Fault._
 import Gate._
 
-import scala.collection.mutable.HashSet
-
 /**
+  * Represents the simulation of a single circuit.
   *
   * @example {{{
   * // Create a new CircuitSimulator instance
@@ -17,72 +18,98 @@ import scala.collection.mutable.HashSet
   * @param lines A `List[List]` containing the lines of the simulation file.
   */
 class CircuitSimulator(val lines: List[List[String]]) {
-  val parser = new CircuitParser(lines)
+  private val parser: CircuitParser = new CircuitParser(lines)
+  val circuitStats = parser.stats
 
-  // Keep track of order as defined in file
-  val inputNets = parser.ioNets.inputs
-  val outputNets = parser.ioNets.outputs
+  // Generate nets for given circuit description; cached between input vectors
+  private val nets: Vector[Net] = parser.genNets
+
+  // Keep track of input and output order as defined in file
+  private val inputNets: Vector[Int] = parser.ioNets.inputs
+  private val outputNets: Vector[Int] = parser.ioNets.outputs
 
   /**
-    * Runs a single simulation, synchronously.
-    *
-    * @param queue A [[me.assil.csim.CircuitQueue]] instance.
-    * @param nets A `Vector` of [[me.assil.csim.Net]]s.
-    * @return A `Vector[Bit]`
+    * Initializes a simulation given an input vector.
+    * @param input Vector of input Bit objects.
     */
-  private def runSim(queue: CircuitQueue, nets: Vector[Net]): Vector[Bit] = {
-    while (queue.nonEmpty) {
-      val gate: Gate = queue.pop
+  private def initRun(input: Vector[Bit]): Unit = {
+    // Check if number of inputs matches
+    require(input.length == circuitStats.inputs, "Please provide an equal length input!")
 
-      // Evaluate the gate and fault lists
-      gate.eval()
+    // Clear out all net values and fault sets
+    nets.foreach { net =>
+      net.value = NotEvaluated
+      net.faultSet = new FaultSet
     }
 
-    outputNets.map(out => nets.filter(_.n == out).head).map(_.value)
-  }
-
-  private def initRun(input: Vector[Bit]): (CircuitQueue, Vector[Net]) = {
-    val nets: Vector[Net] = parser.genNets
-
+    // Apply given values to input nets
     input.zipWithIndex.foreach { pair =>
       val (v, i) = pair
       val n = inputNets(i)
       nets(n-1).value = v
     }
-
-    val queue = parser.getCircuitQueue(nets)
-
-    (queue, nets)
   }
 
-  def runFaults(input: Vector[Bit])(faults: List[Fault]): List[HashSet[Fault]] = {
-    // Check if number of inputs matches
-    val circuitStats = parser.stats
-    require(input.length == circuitStats.inputs, "Please provide an equal length input!")
+  /**
+    * Runs a single simulation, synchronously.
+    */
+  private def runSim(queue: CircuitQueue): Unit = {
+    while (queue.nonEmpty) {
+      // Retrieve a valid gate from the queue
+      val gate: Gate = queue.pop
 
+      // Evaluate the gate and fault lists
+      gate.eval()
+    }
+  }
+
+  /**
+    * Runs a simulation for a single input vector considering faults as well.
+    *
+    * @param input Input values for the simulation.
+    * @param faults Faults present for the simulation.
+    * @return A `Vector[Bit]` that contains the output and a list of faults for each output.
+    */
+  def run(input: Vector[Bit], faults: Vector[Fault]): (Vector[Bit], Vector[Fault]) = {
     // Setup simulation
-    val (queue, nets) = initRun(input)
+    initRun(input)
 
-    // TODO: Inject faults
+    // Inject all given faults into the circuit
+    nets.foreach { net =>
+      val n = net.n
+      val f = faults.filter(_.node == n)
+      f.foreach(net.faultSet += _)
+    }
 
-    runSim(queue, nets)
+    // Run the simulation
+    val queue: CircuitQueue = parser.getCircuitQueue(nets)
+    runSim(queue)
 
-    ???
+    // Store output vector and faults detected
+    val outs: Vector[Net] = outputNets.flatMap(out => nets.filter(_.n == out))
+    val output: Vector[Bit] = outs.map(_.value)
+    val detected: Vector[Fault] =
+      outs.foldLeft(new FaultSet) { (all, f) =>
+        all union f.faultSet
+      }.fs.toVector
+
+    (output, detected)
   }
 
   /**
     * Runs a simulation for a single input vector.
     *
     * @param input Input values for the simulation.
-    * @return A `Vector[Bit]` that contains the output.
+    * @return A `Vector[Bit]` that contains the outputs.
     */
   def run(input: Vector[Bit]): Vector[Bit] = {
-    // Check if number of inputs matches
-    val circuitStats = parser.stats
-    require(input.length == circuitStats.inputs, "Please provide an equal length input!")
+    initRun(input)
 
-    // Run simulation
-    val (queue, nets) = initRun(input)
-    runSim(queue, nets)
+    // Run the simulation
+    val queue: CircuitQueue = parser.getCircuitQueue(nets)
+    runSim(queue)
+
+    val output = outputNets.map(out => nets.filter(_.n == out).head).map(_.value)
+    output
   }
 }
