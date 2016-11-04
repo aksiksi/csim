@@ -5,7 +5,7 @@ import scala.collection.mutable
 import org.scalatest._
 
 class FaultSetSpec extends FunSuite {
-  test("A FaultSet should correctly append an element") {
+  test("It should correctly append an element") {
     val set = new FaultSet
 
     set += Fault(1, Bit(1))
@@ -13,9 +13,11 @@ class FaultSetSpec extends FunSuite {
     assert(set.contains(Fault(1, Bit(1))))
   }
 
-  test("A FaultSet should correctly remove an element") {
+  test("It should correctly remove an element") {
     val set = new FaultSet
     set += Fault(1, Bit(1))
+
+    assert(set.contains(Fault(1, Bit(1))))
 
     set -= Fault(1, Bit(1))
 
@@ -24,7 +26,7 @@ class FaultSetSpec extends FunSuite {
     assert(set.fs.isEmpty)
   }
 
-  test("A FaultSet should perform a union with another FaultSet") {
+  test("It should perform a union with another FaultSet") {
     val s1 = new FaultSet
     s1 += Fault(1, Bit(1))
     val s2 = new FaultSet
@@ -37,7 +39,7 @@ class FaultSetSpec extends FunSuite {
     assert((s1 | s2) == expected)
   }
 
-  test("A FaultSet should perform a intersection with another FaultSet") {
+  test("It should perform an intersection with another FaultSet") {
     val s1 = new FaultSet
     s1 += Fault(1, Bit(1))
     val s2 = new FaultSet
@@ -48,7 +50,7 @@ class FaultSetSpec extends FunSuite {
     assert((s1 & s2) == expected)
   }
 
-  test("A FaultSet should perform a set difference with another FaultSet") {
+  test("It should perform a set difference with another FaultSet") {
     val s1 = new FaultSet
     s1 += Fault(1, Bit(1))
     val s2 = new FaultSet

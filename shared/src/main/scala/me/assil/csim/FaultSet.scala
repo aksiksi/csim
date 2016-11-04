@@ -10,14 +10,16 @@ class FaultSet(var fs: mutable.LinkedHashSet[Fault]) {
   def &(other: FaultSet): FaultSet = new FaultSet(this.fs intersect other.fs)
   def &~(other: FaultSet): FaultSet = new FaultSet(this.fs &~ other.fs)
 
-  def -(f: Fault): FaultSet = new FaultSet(this.fs.filter(_ != f))
-  def -=(f: Fault): Unit = { this.fs = this.fs.filter(_ != f) }
+  def -(f: Fault): FaultSet = new FaultSet(this.fs - f)
+  def -=(f: Fault): Unit = this.fs -= f
   def +=(f: Fault): Unit = this.fs += f
+  def ++=(other: FaultSet) = this.fs ++= other.fs
 
   def nonEmpty: Boolean = this.fs.nonEmpty
   def isEmpty: Boolean = this.fs.isEmpty
-  def contains(f: Fault): Boolean = this.fs.filter(_ == f).nonEmpty
+  def length: Int = this.fs.size
 
+  def contains(f: Fault): Boolean = this.fs.contains(f)
   def ==(other: FaultSet): Boolean = this.fs == other.fs
 
   override def toString: String = fs.toString()

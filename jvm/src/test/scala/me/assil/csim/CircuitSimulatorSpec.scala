@@ -27,7 +27,7 @@ object CircuitSimulatorSpec {
 class CircuitSimulatorSpec extends FunSuite {
   import CircuitSimulatorSpec._
 
-  test("A Simulator should evaluate the circuit s27 and find all faults") {
+  test("It should evaluate the circuit s27 and find all faults") {
     val name = "s27"
     val (result, sim) = testCircuit(name)
 
@@ -40,20 +40,20 @@ class CircuitSimulatorSpec extends FunSuite {
     assert(result && detected.length == 8)
   }
 
-  test("A Simulator should evaluate the circuit s298f_2") {
+  test("It should evaluate the circuit s298f_2") {
     val name = "s298f_2"
     val (result, sim) = testCircuit(name)
 
     assert(result)
   }
 
-  test("A Simulator should evaluate the circuit s349f_2") {
+  test("It should evaluate the circuit s349f_2") {
     val name = "s349f_2"
     val (result, _) = testCircuit(name)
     assert(result)
   }
 
-  test("A Simulator must throw an exception if either the input or circuit file is not found") {
+  test("It must throw an exception if either the input or circuit file is not found") {
     val simFile = new File("not_real.ckt")
     val inputFile = new File("not_real.in")
 

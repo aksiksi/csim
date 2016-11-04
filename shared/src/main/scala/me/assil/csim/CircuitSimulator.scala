@@ -70,7 +70,7 @@ class CircuitSimulator(val lines: List[List[String]]) {
     * @param faults Faults present for the simulation.
     * @return A `Vector[Bit]` that contains the output and a list of faults for each output.
     */
-  def run(input: Vector[Bit], faults: Vector[Fault]): (Vector[Bit], Vector[Fault]) = {
+  def run(input: Vector[Bit], faults: Vector[Fault]): (Vector[Bit], FaultSet) = {
     // Setup simulation
     initRun(input)
 
@@ -88,10 +88,12 @@ class CircuitSimulator(val lines: List[List[String]]) {
     // Store output vector and faults detected
     val outs: Vector[Net] = outputNets.flatMap(out => nets.filter(_.n == out))
     val output: Vector[Bit] = outs.map(_.value)
-    val detected: Vector[Fault] =
+
+    // Determine combined FaultSet for all outputs
+    val detected: FaultSet =
       outs.foldLeft(new FaultSet) { (all, f) =>
         all union f.faultSet
-      }.fs.toVector
+      }
 
     (output, detected)
   }
