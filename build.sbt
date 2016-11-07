@@ -1,3 +1,5 @@
+import sbt.Keys._
+
 name := "csim_root"
 
 scalaVersion in ThisBuild := "2.11.8"
@@ -9,15 +11,19 @@ lazy val root = project.in(file(".")).aggregate(csimJS, csimJVM)
 lazy val csim = crossProject.in(file(".")).
   settings(
     name := "csim",
-    version := "0.0.2"
+    version := "0.0.3"
   ).
   jvmSettings(
-    libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test",
-    mainClass := Some("me.assil.Main")
+    libraryDependencies ++= Seq(
+      "org.scalatest" %% "scalatest" % "3.0.0" % "test",
+      "net.sf.jopt-simple" % "jopt-simple" % "5.0.3"
+    ),
+    mainClass := Some("me.assil.csim.Main"),
+    mainClass in assembly := Some("me.assil.csim.Main")
   ).
   jsSettings(
     scalaJSUseRhino in Global := false,
-    mainClass := Some("me.assil.Csim")
+    mainClass := Some("me.assil.csim.Csim")
   )
 
 lazy val csimJS = csim.js

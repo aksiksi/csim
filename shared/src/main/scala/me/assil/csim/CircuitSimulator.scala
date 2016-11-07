@@ -112,6 +112,7 @@ class CircuitSimulator(val lines: List[List[String]]) {
     runSim(queue)
 
     val output = outputNets.map(out => nets.filter(_.n == out).head).map(_.value)
+
     output
   }
 }

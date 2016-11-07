@@ -53,4 +53,6 @@ class FaultCoverage(val sim: CircuitSimulator, val poolSize: Int = 20) {
     // Return fault coverage
     faultsDetected.length / allFaults.length.toDouble
   }
+
+  def stop(): Unit = ec.pool.shutdown()
 }
