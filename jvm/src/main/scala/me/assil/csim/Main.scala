@@ -63,18 +63,23 @@ object Main extends App {
       Time {
         val results = inputs.map { input =>
           val (output, detected) = sim.run(input, faults)
-          (output, detected)
+          (input, output, detected)
         }
 
-        results.foreach { pair =>
-          val (output, detected) = pair
+        results.foreach { t =>
+          val (input, output, detected) = t
 
+          val inString = input.map(_.value).mkString
           val outString = output.map(_.value).mkString
           val faultString = detected.fs.map { fault =>
             s"${fault.node} s-a-${fault.value.value}"
           }.mkString("\n")
 
-          bw.write(s"Output: $outString\nFaults:\n$faultString\n\n")
+          bw.write(
+            s"""Input: $inString
+               |Output: $outString
+               |Number of faults: ${detected.length}
+               |Faults:\n$faultString\n\n""".stripMargin)
         }
 
         println(s"Output written to ${outFile.getName}")
