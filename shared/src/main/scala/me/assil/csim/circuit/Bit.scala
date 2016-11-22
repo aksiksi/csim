@@ -1,4 +1,4 @@
-package me.assil.csim
+package me.assil.csim.circuit
 
 /**
   * Companion object for [[Bit]].

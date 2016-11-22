@@ -1,28 +1,17 @@
-package me.assil.csim
+package me.assil.csim.parser
 
-import Bit._
-import Fault._
-import Gate._
-import Net._
+import me.assil.csim.CircuitQueue
+import me.assil.csim.circuit._
+import me.assil.csim.fault.FaultSet
 
 import scala.util.{Failure, Success, Try}
-
-/**
-  * Stores number of gates and nodes in circuit.
-  *
-  * @param gates Number of gates in the circuit.
-  * @param nets Number of nets in the circuit.
-  */
-case class CircuitStats(gates: Int, nets: Int, inputs: Int)
-
-case class IONets(inputs: Vector[Int], outputs: Vector[Int])
 
 /**
   * Given the path to a circuit description file,
   * [[CircuitParser]] parses the file and stores two main things:
   * a `Vector` of [[Net]] objects that describes the circuit,
   * and a [[CircuitQueue]] with the inputs and output nets
-  * for all gates in the circuit properly configured.
+  * for all circuit in the circuit properly configured.
   *
   * @example {{{
   *   val parser = new CircuitParser("in.txt")
@@ -75,7 +64,7 @@ class CircuitParser(val lines: List[List[String]]) {
 
   def genNets: Vector[Net] = {
     val nets = (1 to stats.nets).toVector.map {
-      Net(_, NotEvaluated, kind = OtherNet, new FaultSet)
+      Net(_, Bit.NotEvaluated, kind = Net.OtherNet, new FaultSet)
     }
 
     parseIO(lines, nets)
@@ -111,8 +100,8 @@ class CircuitParser(val lines: List[List[String]]) {
       line.tail.map(_.toInt).filter(_ != -1).foreach { n =>
         val net = nets(n-1)
         net.kind = line.head match {
-          case "INPUT" => InputNet
-          case "OUTPUT" => OutputNet
+          case "INPUT" => Net.InputNet
+          case "OUTPUT" => Net.OutputNet
         }
       }
     }

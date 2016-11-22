@@ -2,9 +2,7 @@ package me.assil.csim
 
 import scala.collection.mutable.ListBuffer
 
-import Bit._
-import Gate._
-import Net.NoneNet
+import circuit.{Bit, Net, Gate}
 
 class CircuitQueue {
   val queue = ListBuffer.empty[Gate]
@@ -21,11 +19,11 @@ class CircuitQueue {
     val gate = queue.zipWithIndex.filter { pair =>
       val (gate, _) = pair
 
-      // Case 1: 1-input gate
-      if (gate.in2 == NoneNet) gate.in1.value != NotEvaluated
+      // Case 1: 1-input circuit
+      if (gate.in2 == Net.NoneNet) gate.in1.value != Bit.NotEvaluated
 
-      // Case 2: 2-input gate
-      else gate.in1.value != NotEvaluated && gate.in2.value != NotEvaluated
+      // Case 2: 2-input circuit
+      else gate.in1.value != Bit.NotEvaluated && gate.in2.value != Bit.NotEvaluated
     }.head
 
     queue.remove(gate._2)

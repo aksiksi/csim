@@ -3,9 +3,9 @@ package me.assil.csim
 import java.io.File
 
 import org.scalatest._
-
 import CircuitHelper._
-import Fault._
+import me.assil.csim.circuit.Bit
+import me.assil.csim.fault.Fault._
 
 object CircuitSimulatorSpec {
   def testCircuit(name: String) = {

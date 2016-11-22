@@ -1,6 +1,7 @@
-package me.assil.csim
+package me.assil.csim.circuit
 
-import Bit._
+import me.assil.csim.circuit.Bit._
+import me.assil.csim.fault.FaultSet
 
 object Net {
   // Track the type of Net

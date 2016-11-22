@@ -1,8 +1,8 @@
 package me.assil.csim
 
-import Bit._
-import Fault._
-import Gate._
+import circuit.{Bit, Gate, Net}
+import fault.{Fault, FaultSet}
+import parser.CircuitParser
 
 /**
   * Represents the simulation of a single circuit.
@@ -38,7 +38,7 @@ class CircuitSimulator(val lines: List[List[String]]) {
 
     // Clear out all net values and fault sets
     nets.foreach { net =>
-      net.value = NotEvaluated
+      net.value = Bit.NotEvaluated
       net.faultSet = new FaultSet
     }
 
@@ -55,10 +55,10 @@ class CircuitSimulator(val lines: List[List[String]]) {
     */
   private def runSim(queue: CircuitQueue): Unit = {
     while (queue.nonEmpty) {
-      // Retrieve a valid gate from the queue
+      // Retrieve a valid circuit from the queue
       val gate: Gate = queue.pop
 
-      // Evaluate the gate and fault lists
+      // Evaluate the circuit and fault lists
       gate.eval()
     }
   }

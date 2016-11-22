@@ -2,6 +2,9 @@ package me.assil.csim
 
 import java.io.File
 
+import me.assil.csim.circuit.Bit
+import me.assil.csim.fault.Fault
+
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
 

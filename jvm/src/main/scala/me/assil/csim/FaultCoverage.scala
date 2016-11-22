@@ -2,6 +2,9 @@ package me.assil.csim
 
 import java.util.concurrent.{Executors, atomic}
 
+import me.assil.csim.circuit.Bit
+import me.assil.csim.fault.{Fault, FaultSet}
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 

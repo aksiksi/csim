@@ -5,6 +5,8 @@ import java.io.{BufferedWriter, File, FileWriter}
 import scala.util.{Failure, Try}
 import joptsimple.OptionParser
 import Util.Time
+import me.assil.csim.circuit.Bit
+import me.assil.csim.fault.Fault
 
 object Main extends App {
   def helpMessage() = {

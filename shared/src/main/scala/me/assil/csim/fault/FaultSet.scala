@@ -1,4 +1,4 @@
-package me.assil.csim
+package me.assil.csim.fault
 
 import scala.collection.mutable
 

@@ -4,6 +4,8 @@ name := "csim_root"
 
 scalaVersion in ThisBuild := "2.11.8"
 
+scalacOptions += "-deprecation"
+
 enablePlugins(ScalaJSPlugin)
 
 lazy val root = project.in(file(".")).aggregate(csimJS, csimJVM)

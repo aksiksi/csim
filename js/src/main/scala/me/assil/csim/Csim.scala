@@ -4,8 +4,9 @@ package me.assil.csim
   * Provides an interface to csim for use in JavaScript.
   */
 
-import scala.util.{Failure, Try}
+import me.assil.csim.circuit.Bit
 
+import scala.util.{Failure, Try}
 import scala.scalajs.js
 import js.annotation.JSExport
 import js.JSConverters._

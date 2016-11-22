@@ -1,7 +1,9 @@
 package me.assil.csim
 
-import scala.collection.mutable
+import me.assil.csim.circuit.Bit
+import me.assil.csim.fault.{Fault, FaultSet}
 
+import scala.collection.mutable
 import org.scalatest._
 
 class FaultSetSpec extends FunSuite {

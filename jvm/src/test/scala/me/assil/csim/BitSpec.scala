@@ -1,5 +1,6 @@
 package me.assil.csim
 
+import me.assil.csim.circuit.Bit
 import org.scalatest._
 
 class BitSpec extends FunSuite {
