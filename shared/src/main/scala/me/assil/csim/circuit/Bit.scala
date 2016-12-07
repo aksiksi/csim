@@ -8,12 +8,20 @@ object Bit {
 
   val Low = Bit(0)
   val High = Bit(1)
-  val NotEvaluated = Bit(-1)
+
+  // D and D' for use in PODEM
+  val D = Bit(2)
+  val Db = Bit(3)
+
+  // Don't care/not evaluated
+  val X = Bit(-1)
 }
 
 /**
   * Represents a single bit, and includes the primary
   * binary operations between individual bits.
+  *
+  * Operates on 5-valued logic, if needed (PODEM).
   *
   * @example {{{
   *   val b1 = Bit(1)
@@ -33,7 +41,7 @@ object Bit {
 class Bit(val value: Int) {
   import Bit._
 
-  require(Seq(0, 1, -1).contains(value))
+  require(Seq(0, 1, 2, 3, -1).contains(value))
 
   /**
     * Evaluates a single bit AND.
@@ -42,8 +50,18 @@ class Bit(val value: Int) {
     * @return The result of a binary AND operation.
     */
   def &(other: Bit): Bit = {
+    val values = Seq(this, other)
+
     if (other == High && this == High) High
-    else Low
+    else if (values.contains(Low)) Low
+
+    // PODEM 5-valued logic evaluation rules
+    else if (values.contains(X)) X
+    else if (values.contains(D)) {
+      if (values.contains(Db)) Low
+      else D
+    }
+    else Db
   }
 
   /**
@@ -53,8 +71,18 @@ class Bit(val value: Int) {
     * @return The result of a binary OR operation.
     */
   def |(other: Bit): Bit = {
+    val values = Seq(this, other)
+
     if (other == Low && this == Low) Low
-    else High
+    else if (values.contains(High)) High
+
+    // PODEM 5-valued logic evaluation rules
+    else if (values.contains(X)) X
+    else if (values.contains(D)) {
+      if (values.contains(Db)) High
+      else D
+    }
+    else Db
   }
 
   /**
@@ -64,9 +92,20 @@ class Bit(val value: Int) {
     * @return The result of a binary XOR operation.
     */
   def ^(other: Bit): Bit = {
-    if (other == NotEvaluated || this == NotEvaluated) NotEvaluated
-    else if (other == this) Low
-    else High
+    val v = Seq(this, other)
+
+    if (v.contains(Low) && v.contains(High)) High
+    else if (this == Low && other == Low) Low
+    else if (this == High && other == High) Low
+
+    // PODEM 5-valued logic evaluation rules
+    else if (v.contains(X)) X
+    else if (v.contains(D) && v.contains(Db)) High
+    else if (v.contains(D) && v.contains(High)) Db
+    else if (v.contains(D) && v.contains(Low)) D
+    else if (v.contains(Db) && v.contains(High)) D
+    else if (v.contains(Db) && v.contains(Low)) Db
+    else Low
   }
 
   /**
@@ -76,7 +115,12 @@ class Bit(val value: Int) {
     */
   def unary_~(): Bit = {
     if (this == Low) High
-    else Low
+    else if (this == High) Low
+
+    // PODEM 5-valued logic evaluation rules
+    else if (this == X) X
+    else if (this == D) Db
+    else D
   }
 
   def ==(other: Bit): Boolean = this.value == other.value

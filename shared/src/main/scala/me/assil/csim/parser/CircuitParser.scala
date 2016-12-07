@@ -64,32 +64,35 @@ class CircuitParser(val lines: List[List[String]]) {
 
   def genNets: Vector[Net] = {
     val nets = (1 to stats.nets).toVector.map {
-      Net(_, Bit.NotEvaluated, kind = Net.OtherNet, new FaultSet)
+      Net(_, Bit.X, kind = Net.OtherNet, new FaultSet)
     }
 
     parseIO(lines, nets)
   }
 
-  def parseGate(line: List[String], nets: Vector[Net]): Gate = {
+  def parseGate(line: List[String], nets: Vector[Net], i: Int): Gate = {
     val t: List[Net] = line.tail.map(n => nets(n.toInt-1))
 
     line.head match {
-      case "AND" => And(t.head, t(1), t(2))
-      case "NAND" => Nand(t.head, t(1), t(2))
-      case "OR" => Or(t.head, t(1), t(2))
-      case "NOR" => Nor(t.head, t(1), t(2))
-      case "XOR" => Xor(t.head, t(1), t(2))
-      case "INV" => Inv(t.head, t(1))
-      case "BUF" => Buf(t.head, t(1))
+      case "AND" => And(t.head, t(1), t(2), i)
+      case "NAND" => Nand(t.head, t(1), t(2), i)
+      case "OR" => Or(t.head, t(1), t(2), i)
+      case "NOR" => Nor(t.head, t(1), t(2), i)
+      case "XOR" => Xor(t.head, t(1), t(2), i)
+      case "INV" => Inv(t.head, t(1), i)
+      case "BUF" => Buf(t.head, t(1), i)
     }
   }
 
   def getCircuitQueue(nets: Vector[Net]): CircuitQueue = {
     val queue = new CircuitQueue
 
+    var i = 0
+
     lines.filter(isGateLine).foreach { line =>
-      val g = parseGate(line, nets)
+      val g = parseGate(line, nets, i)
       queue.push(g)
+      i += 1
     }
 
     queue

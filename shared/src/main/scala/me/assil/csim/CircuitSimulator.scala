@@ -38,7 +38,7 @@ class CircuitSimulator(val lines: List[List[String]]) {
 
     // Clear out all net values and fault sets
     nets.foreach { net =>
-      net.value = Bit.NotEvaluated
+      net.value = Bit.X
       net.faultSet = new FaultSet
     }
 

@@ -2,7 +2,7 @@ package me.assil.csim.circuit
 
 import Bit._
 
-case class And(in1: Net, in2: Net, out: Net) extends Gate {
+case class And(in1: Net, in2: Net, out: Net, n: Int) extends Gate {
   def op = in1 & in2
 
   def faultFn = {

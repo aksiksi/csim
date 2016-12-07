@@ -20,10 +20,10 @@ class CircuitQueue {
       val (gate, _) = pair
 
       // Case 1: 1-input circuit
-      if (gate.in2 == Net.NoneNet) gate.in1.value != Bit.NotEvaluated
+      if (gate.in2 == Net.NoneNet) gate.in1.value != Bit.X
 
       // Case 2: 2-input circuit
-      else gate.in1.value != Bit.NotEvaluated && gate.in2.value != Bit.NotEvaluated
+      else gate.in1.value != Bit.X && gate.in2.value != Bit.X
     }.head
 
     queue.remove(gate._2)

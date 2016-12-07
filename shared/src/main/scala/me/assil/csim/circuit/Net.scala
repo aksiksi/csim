@@ -1,6 +1,5 @@
 package me.assil.csim.circuit
 
-import me.assil.csim.circuit.Bit._
 import me.assil.csim.fault.FaultSet
 
 object Net {
@@ -10,7 +9,7 @@ object Net {
   val OtherNet = 2
 
   /** Represents an empty [[Net]]. */
-  val NoneNet = Net(-1, NotEvaluated, kind = OtherNet, new FaultSet)
+  val NoneNet = Net(-1, Bit.X, kind = OtherNet, new FaultSet)
 
   /** Simple implicit conversion for binary ops between Nets. */
   implicit val implNet = (n: Net) => n.value

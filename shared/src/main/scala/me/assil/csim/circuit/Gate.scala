@@ -1,12 +1,14 @@
 package me.assil.csim.circuit
 
-import Bit._
 import me.assil.csim.fault._
 
 trait Gate {
   /** Gate inputs and output */
   val in1, in2: Net
   val out: Net
+
+  /** Unique identifier for a gate */
+  val n: Int
 
   /** The operation performed by the circuit */
   def op: Bit
@@ -19,7 +21,7 @@ trait Gate {
     // Remove any faults that are invalid based on FF values
     for (
       net <- Seq(in1, in2)
-      if net.value != NotEvaluated
+      if net.value == Bit.Low || net.value == Bit.High
     )
       net.faultSet -= Fault(net.n, net.value)
 
