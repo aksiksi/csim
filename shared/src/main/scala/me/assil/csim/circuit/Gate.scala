@@ -2,6 +2,18 @@ package me.assil.csim.circuit
 
 import me.assil.csim.fault._
 
+object Gate {
+  val GATES = Seq(
+    "AND",
+    "OR",
+    "NAND",
+    "NOR",
+    "XOR",
+    "INV",
+    "BUF"
+  )
+}
+
 trait Gate {
   /** Gate inputs and output */
   val in1, in2: Net
@@ -9,6 +21,12 @@ trait Gate {
 
   /** Unique identifier for a gate */
   val n: Int
+
+  /** The inversion parity of the gate */
+  val p: Bit
+
+  /** The controlling value of the gate */
+  val c: Bit
 
   /** The operation performed by the circuit */
   def op: Bit
@@ -38,4 +56,14 @@ trait Gate {
     if (fs.exists(_.faultSet.nonEmpty))
       out.faultSet = faultEval
   }
+
+  // For equality!
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case other: Bit => this.hashCode == other.hashCode
+      case _ => false
+    }
+  }
+
+  override def hashCode(): Int = n
 }

@@ -1,5 +1,11 @@
 ## Design of PODEM
 
+#### TODO
+
+1. Figure out what to use for imply simulation (CircuitQueue vs. CircuitGraph).
+2. Add Gate IDs in CircuitParser, and append Gates to Nets.
+3. Fill in PODEM methods.
+
 ### Concepts
 
 * D-frontier: all gates in circuit whose output is *x*, but has at least one D/D' at input.

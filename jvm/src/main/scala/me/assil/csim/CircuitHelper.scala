@@ -24,8 +24,8 @@ object CircuitHelper {
     Source.fromFile(file, enc = "utf-8").getLines().foreach { line =>
       if (line.trim != "")
         inputs += line.map { c =>
-          if (c == '0') Bit(0)
-          else Bit(1)
+          if (c == '0') Bit.Low
+          else Bit.High
         }.toVector
     }
 

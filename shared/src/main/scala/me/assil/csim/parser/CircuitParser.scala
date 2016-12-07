@@ -4,6 +4,7 @@ import me.assil.csim.CircuitQueue
 import me.assil.csim.circuit._
 import me.assil.csim.fault.FaultSet
 
+import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -62,12 +63,61 @@ class CircuitParser(val lines: List[List[String]]) {
     IONets(nets.head, nets(1))
   }
 
-  def genNets: Vector[Net] = {
-    val nets = (1 to stats.nets).toVector.map {
-      Net(_, Bit.X, kind = Net.OtherNet, new FaultSet)
+  /**
+    * Initializes all circuit nets with currently available info.
+    *
+    * @param nets A Vector of Net objects.
+    * @return A reference to the same Vector.
+    */
+  def initNets(nets: Vector[Net]): Vector[Net] = {
+    // Line counter for gate identifiers
+    var c = 0
+
+    lines.foreach { line =>
+      val l = line.head.trim
+      val t = line.tail
+
+      if (Gate.GATES.contains(l)) {
+        // If it's a gate line, include gate in Nets it's connected to
+        t.map(_.toInt).zipWithIndex.foreach { p =>
+          val (n, i) = p
+          val net = nets(n-1)
+
+          // Use current Net position to determine what to do
+          if (i == 0)
+            net.outGates = net.outGates union Seq(c)
+          else if (i == 1) {
+            if (l == "INV" || l == "BUF") net.inGate = c
+            else net.outGates = net.outGates union Seq(c)
+          }
+          else
+            net.inGate = c
+        }
+
+        c += 1
+      }
+
+      else if (l == "INPUT" || l == "OUTPUT") {
+        // If it's an input/output line, add this info to specified Nets
+        t.map(_.toInt).filter(_ != -1).foreach { n =>
+          val net = nets(n-1)
+          net.kind = line.head match {
+            case "INPUT" => Net.InputNet
+            case "OUTPUT" => Net.OutputNet
+          }
+        }
+      }
     }
 
-    parseIO(lines, nets)
+    nets
+  }
+
+  def genNets: Vector[Net] = {
+    val nets = (1 to stats.nets).toVector.map {
+      Net(_, Bit.X, kind = Net.OtherNet, new FaultSet, -1, Vector.empty[Int])
+    }
+
+    initNets(nets)
   }
 
   def parseGate(line: List[String], nets: Vector[Net], i: Int): Gate = {
@@ -84,31 +134,26 @@ class CircuitParser(val lines: List[List[String]]) {
     }
   }
 
+  def getCircuitGates(nets: Vector[Net]): Vector[Gate] = {
+    // Gate counter
+    var i = 0
+
+    // Parse all Gate lines, and convert to Vector
+    val gates = lines.filter(isGateLine).map { line =>
+      val g = parseGate(line, nets, i)
+      i += 1
+      g
+    }.toVector
+
+    gates
+  }
+
   def getCircuitQueue(nets: Vector[Net]): CircuitQueue = {
     val queue = new CircuitQueue
 
-    var i = 0
-
-    lines.filter(isGateLine).foreach { line =>
-      val g = parseGate(line, nets, i)
-      queue.push(g)
-      i += 1
-    }
+    val gates = getCircuitGates(nets)
+    gates.foreach { g => queue.push(g) }
 
     queue
-  }
-
-  def parseIO(lines: List[List[String]], nets: Vector[Net]): Vector[Net] = {
-    lines.filter(!isGateLine(_)).foreach { line =>
-      line.tail.map(_.toInt).filter(_ != -1).foreach { n =>
-        val net = nets(n-1)
-        net.kind = line.head match {
-          case "INPUT" => Net.InputNet
-          case "OUTPUT" => Net.OutputNet
-        }
-      }
-    }
-
-    nets
   }
 }

@@ -1,5 +1,7 @@
 package me.assil.csim.circuit
 
+import me.assil.csim.fault.Fault
+
 /**
   * Companion object for [[Bit]].
   */
@@ -50,15 +52,15 @@ class Bit(val value: Int) {
     * @return The result of a binary AND operation.
     */
   def &(other: Bit): Bit = {
-    val values = Seq(this, other)
+    val v = Seq(this, other)
 
     if (other == High && this == High) High
-    else if (values.contains(Low)) Low
+    else if (v.contains(Low)) Low
 
     // PODEM 5-valued logic evaluation rules
-    else if (values.contains(X)) X
-    else if (values.contains(D)) {
-      if (values.contains(Db)) Low
+    else if (v.contains(X)) X
+    else if (v.contains(D)) {
+      if (v.contains(Db)) Low
       else D
     }
     else Db
@@ -71,15 +73,15 @@ class Bit(val value: Int) {
     * @return The result of a binary OR operation.
     */
   def |(other: Bit): Bit = {
-    val values = Seq(this, other)
+    val v = Seq(this, other)
 
     if (other == Low && this == Low) Low
-    else if (values.contains(High)) High
+    else if (v.contains(High)) High
 
     // PODEM 5-valued logic evaluation rules
-    else if (values.contains(X)) X
-    else if (values.contains(D)) {
-      if (values.contains(Db)) High
+    else if (v.contains(X)) X
+    else if (v.contains(D)) {
+      if (v.contains(Db)) High
       else D
     }
     else Db

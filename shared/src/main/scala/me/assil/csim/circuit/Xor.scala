@@ -1,6 +1,10 @@
 package me.assil.csim.circuit
 
 case class Xor(in1: Net, in2: Net, out: Net, n: Int) extends Gate {
+  // TODO: check this out?
+  override val c = Bit.Low
+  override val p = Bit.High
+
   def op = in1 ^ in2
 
   def faultFn = {

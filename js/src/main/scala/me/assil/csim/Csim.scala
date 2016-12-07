@@ -25,7 +25,11 @@ class Csim (val lines: js.Array[String], val inputs: js.Array[js.Array[Int]]) {
       val sim = new CircuitSimulator(split)
 
       inputs.foreach { input =>
-        outputs += sim.run(input.map(new Bit(_)).toVector).toJSArray.map(_.value)
+        outputs += sim.run(
+          input.map { i =>
+            if (i == 0) Bit.Low
+            else Bit.High
+          }.toVector).toJSArray.map(_.value)
       }
     } match {
       case Failure(e) => println("Error: " + e)
