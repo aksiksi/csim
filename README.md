@@ -6,21 +6,24 @@
 
 ### Goals
 
-1. Simulation of digital circuits consisting of basic gates [done]
-2. Generation of random circuits of `n` gates for testing purposes [in progress]
-3. Optimize engine and data structures to allow simulation of upto 1 million gates with minimal memory usage [todo]
+- [x] Simulation of digital circuits consisting of basic gates (AND, OR, NAND, NOR, INV, BUF, XOR)
+- [x] Working deductive fault simulator that supports all of the gates above
+- [x] Fully operational PODEM implementation (no support for XOR yet!)
 
 ### Build
 
 #### Requirements
 
 1. [Scala 2.11.x](http://www.scala-lang.org/download/)
+    - Scala 2.12.x is supported, but JS target will not compile (yet!)
 2. [sbt 0.13.x](http://www.scala-sbt.org/download.html)
 
-Navigate to the root of the project directory i.e. where `build.sbt` is located. You have two options when building **csim**:
+To build **csim**, first navigate to the root of the project directory i.e. where `build.sbt` is located.
 
-* To build for Scala, run `sbt csimJVM/package`.
-* To build a "fat" JAR for Java, run `sbt csimJVM/assembly`.
+You have two options for building **csim**:
+
+* To build a JAR for Scala, run `sbt csimJVM/package`.
+* To build a "fat" JAR for Java (includes Scala stdlib), run `sbt csimJVM/assembly`.
 * To build an optimized version targeting JavaScript, run `sbt csimJS/fullOptJS`.
 
 Look under the directory `[jvm|js]/target/scala-2.11` for the output JAR or JS file.

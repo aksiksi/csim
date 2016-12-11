@@ -1,7 +1,5 @@
 package me.assil.csim
 
-import parser.CircuitParser
-
 import java.io.File
 
 import org.scalatest.FunSuite

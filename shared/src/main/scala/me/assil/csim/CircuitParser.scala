@@ -1,11 +1,27 @@
-package me.assil.csim.parser
+package me.assil.csim
 
-import me.assil.csim.CircuitQueue
 import me.assil.csim.circuit._
 import me.assil.csim.fault.FaultSet
 
-import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
+
+
+/**
+  * Stores number of circuit and nodes in circuit.
+  *
+  * @param gates Number of circuit in the circuit.
+  * @param nets Number of nets in the circuit.
+  * @param inputs Number of inputs to the circuit.
+  */
+case class CircuitStats(gates: Int, nets: Int, inputs: Int)
+
+/**
+  * Stores the input and output net numbers for a circuit.
+  *
+  * @param inputs Input net numbers (in order).
+  * @param outputs Output net numbers (in order).
+  */
+case class IONets(inputs: Vector[Int], outputs: Vector[Int])
 
 /**
   * Given the path to a circuit description file,

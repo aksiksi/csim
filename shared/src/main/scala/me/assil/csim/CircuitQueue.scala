@@ -8,11 +8,22 @@ class CircuitQueue {
   val queue = ListBuffer.empty[Gate]
   var count = 0
 
+  /**
+    * Pushes a Gate g to the queue.
+    *
+    * @param g Gate to push onto queue.
+    */
   def push(g: Gate) = {
     queue += g
     count += 1
   }
 
+  /**
+    * Priority queue pop routine. Keeps only fully
+    * computable gates, and returns the first.
+    *
+    * @return The first computable gate in the queue.
+    */
   def pop: Gate = {
     count -= 1
 

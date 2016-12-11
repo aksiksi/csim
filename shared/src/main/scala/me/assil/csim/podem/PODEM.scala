@@ -1,8 +1,8 @@
 package me.assil.csim.podem
 
+import me.assil.csim.CircuitParser
 import me.assil.csim.circuit.{Bit, Gate, Net}
 import me.assil.csim.fault.Fault
-import me.assil.csim.parser.CircuitParser
 
 import scala.collection.mutable
 

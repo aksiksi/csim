@@ -2,10 +2,9 @@ package me.assil.csim
 
 import circuit.{Bit, Gate, Net}
 import fault.{Fault, FaultSet}
-import parser.CircuitParser
 
 /**
-  * Represents the simulation of a single circuit.
+  * Performs the simulation of a single circuit.
   *
   * @example {{{
   * // Create a new CircuitSimulator instance
@@ -18,6 +17,7 @@ import parser.CircuitParser
   * @param lines A `List[List]` containing the lines of the simulation file.
   */
 class CircuitSimulator(val lines: List[List[String]]) {
+  // Setup a parser instance for given circuit
   private val parser: CircuitParser = new CircuitParser(lines)
   val circuitStats = parser.stats
 
