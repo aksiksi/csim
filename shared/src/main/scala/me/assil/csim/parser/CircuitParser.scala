@@ -79,8 +79,7 @@ class CircuitParser(val lines: List[List[String]]) {
 
       if (Gate.GATES.contains(l)) {
         // If it's a gate line, include gate in Nets it's connected to
-        t.map(_.toInt).zipWithIndex.foreach { p =>
-          val (n, i) = p
+        t.map(_.trim.toInt).zipWithIndex.foreach { case (n, i) =>
           val net = nets(n-1)
 
           // Use current Net position to determine what to do
@@ -114,7 +113,7 @@ class CircuitParser(val lines: List[List[String]]) {
 
   def genNets: Vector[Net] = {
     val nets = (1 to stats.nets).toVector.map {
-      Net(_, Bit.X, kind = Net.OtherNet, new FaultSet, -1, Vector.empty[Int])
+      Net(_, Bit.X, kind = Net.OtherNet, new FaultSet, -1, Vector.empty[Int], Bit.X)
     }
 
     initNets(nets)

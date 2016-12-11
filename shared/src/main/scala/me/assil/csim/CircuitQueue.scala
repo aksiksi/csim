@@ -16,9 +16,7 @@ class CircuitQueue {
   def pop: Gate = {
     count -= 1
 
-    val gate = queue.zipWithIndex.filter { pair =>
-      val (gate, _) = pair
-
+    val g = queue.zipWithIndex.filter { case (gate, _) =>
       // Case 1: 1-input circuit
       if (gate.in2 == Net.NoneNet) gate.in1.value != Bit.X
 
@@ -26,7 +24,7 @@ class CircuitQueue {
       else gate.in1.value != Bit.X && gate.in2.value != Bit.X
     }.head
 
-    queue.remove(gate._2)
+    queue.remove(g._2)
   }
 
   def nonEmpty: Boolean = count != 0

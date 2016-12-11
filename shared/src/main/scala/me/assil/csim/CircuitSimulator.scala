@@ -43,8 +43,7 @@ class CircuitSimulator(val lines: List[List[String]]) {
     }
 
     // Apply given values to input nets
-    input.zipWithIndex.foreach { pair =>
-      val (v, i) = pair
+    input.zipWithIndex.foreach { case (v, i) =>
       val n = inputNets(i)
       nets(n-1).value = v
     }
@@ -67,12 +66,17 @@ class CircuitSimulator(val lines: List[List[String]]) {
     * Runs a simulation for a single input vector considering faults as well.
     *
     * @param input Input values for the simulation.
-    * @param faults Faults present for the simulation.
+    * @param fs Faults present for the simulation. If empty, consider all faults.
     * @return A `Vector[Bit]` that contains the output and a list of faults for each output.
     */
-  def run(input: Vector[Bit], faults: Vector[Fault]): (Vector[Bit], FaultSet) = {
+  def run(input: Vector[Bit], fs: Vector[Fault]): (Vector[Bit], FaultSet) = {
     // Setup simulation
     initRun(input)
+
+    // If no faults, consider all faults
+    val faults =
+      if (fs.isEmpty) Fault.genAllFaults(circuitStats.nets)
+      else fs
 
     // Inject all given faults into the circuit
     nets.foreach { net =>

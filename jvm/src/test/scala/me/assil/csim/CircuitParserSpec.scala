@@ -12,6 +12,5 @@ class CircuitParserSpec extends FunSuite {
 
   test("It should correctly parse Nets and initialize them") {
     val nets = parser.genNets
-    println(nets)
   }
 }

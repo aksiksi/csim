@@ -1,10 +1,37 @@
 ## Design of PODEM
 
+#### Approach
+
+1. Push initial to DF.
+2. Specify first objective and run PODEM.
+3. In imply, run simulation with number of conditions:
+    - If current popped gate is in DF and output != x, evaluate, then push all child gates that have x input. Remove gate from DF.
+    - If gate is in DF AND output is output net AND other input is non-controlling value -> DONE (set global flag or something).
+4. After simulation, prune DF of gates with known output.
+
 #### TODO
 
-1. Figure out what to use for imply simulation (CircuitQueue vs. CircuitGraph).
-2. Add Gate IDs in CircuitParser, and append Gates to Nets.
-3. Fill in PODEM methods.
+* X-path check to determine if there exists a possible route to a PO? (not needed)
+
+* I think that D/D' simulation is NOT needed.
+  
+* PODEM idea
+    - Pass initial objective to PODEM (that is, first fault). Ex: node s-a-1 for D.
+    - Check for x-path from current objective to output. No path = FAIL.
+    - Check for empty D-frontier?
+    - Find assignment.
+    - Run imply
+        - Need to track D-frontier during simulation. 
+        - Ideas:
+            - Add initial gate to DF
+            - During sim, if output is != x, remove from DF.
+            - Save child gates.
+            - Whenever child gate encountered, do shit??
+
+* Biggest hurdle: if no simulation of D/D', how the hell do you know when error is at PO???
+    - Need more robust tracking of DF.
+
+* Backup plan for demo: cheat using fault sim :P
 
 ### Concepts
 
@@ -60,3 +87,8 @@ Used to retrieve a new objective, either directly or from the D-frontier. Input 
 In other words, objective is to set the input of one of the D-frontier gates to a non-controlling value to allow D/D' to propagate!
 
 Selection of a gate from the D-frontier and the selection of the input can be random (in principle), but ideally should be optimized!
+
+### Issues Faced
+
+1. If D/D' is at a PI, and the first gate is 1-input (INV or BUF), need to run imply once to populate D-frontier.
+2. If D/D' is at a PO, need to shift D/D' back until either: 1) it's at a 2-input gate, or 2) it's at a PI.

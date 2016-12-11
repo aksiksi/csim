@@ -5,8 +5,11 @@ import java.io.{BufferedWriter, File, FileWriter}
 import scala.util.{Failure, Try}
 import joptsimple.OptionParser
 import Util.Time
-import me.assil.csim.circuit.Bit
-import me.assil.csim.fault.Fault
+import circuit.Bit
+import fault.Fault
+import podem.PODEM
+
+import scala.io.StdIn
 
 object Main extends App {
   def helpMessage() = {
@@ -137,13 +140,68 @@ object Main extends App {
     }
   }
 
+  def podemREPL(simFile: File): Unit = {
+    Try {
+      val lines = CircuitHelper.readSimFile(simFile)
+
+      val sim = new CircuitSimulator(lines)
+      val podem = new PODEM(lines)
+
+      // Simple REPL
+      var stop = false
+
+      while (!stop) {
+        print("Enter a fault: ")
+
+        val line = StdIn.readLine().split(" ")
+
+        if (line.head == "q") stop = true
+        else {
+          Time {
+            val fault = Fault(line.head.toInt, Bit(line(1).toInt))
+
+            val v = podem.run(fault).map {
+              case Bit.X => Bit.Low
+              case b => b
+            }
+
+            println(s"Test vector: ${v.map(_.value).mkString("")}")
+
+            // Simulate all faults
+            val (output, detected) = sim.run(v, Vector())
+
+            // Was initial fault detected?
+            val status: String =
+              if (detected.contains(fault)) "Yes"
+              else "No"
+
+            println(s"Detected ${fault.node} s-a-${fault.value.value}? $status")
+
+            // Print all detected faults
+            val faultString = detected.fs.map { f =>
+              s"${f.node} s-a-${f.value.value}"
+            }.mkString("\n")
+
+            println(faultString)
+          }
+        }
+      }
+    } match {
+      case Failure(e) => println(e)
+      case _ => Unit
+    }
+  }
+
   val parser = new OptionParser()
 
-  // Arguments
-  val circuit = parser.accepts("circuit").withRequiredArg().required().ofType(classOf[File])
-  val inputs = parser.accepts("inputs").withRequiredArg().required().ofType(classOf[File])
+  // Argument parser
+  val circuit = parser.accepts("circuit").withRequiredArg().ofType(classOf[File])
+  val inputs = parser.accepts("inputs").withRequiredArg().ofType(classOf[File])
+
   val fault = parser.accepts("fault").withOptionalArg().ofType(classOf[File])
   val coverage = parser.accepts("coverage").availableIf(fault)
+
+  val podem = parser.accepts("podem").withRequiredArg().ofType(classOf[File])
 
   // Help option
   parser.accepts("help").forHelp()
@@ -170,6 +228,8 @@ object Main extends App {
     else
       simulateInputs(simFile, inputFile)
   }
+  else if (options.has(podem))
+    podemREPL(options.valueOf(podem))
   else
     helpMessage()
 }

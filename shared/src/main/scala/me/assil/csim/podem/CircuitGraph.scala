@@ -1,8 +1,6 @@
 package me.assil.csim.podem
 
-import me.assil.csim.circuit.Gate
-import me.assil.csim.circuit.Net
-
+import me.assil.csim.circuit.{Bit, Gate, Net}
 import PODEM.Assignment
 
 import scala.collection.mutable
@@ -11,10 +9,12 @@ import scala.collection.mutable
   * Represents a circuit as a graph (node: Gate, edge: Net)
   * instead of a queue as used in CircuitSimulator.
   *
-  * @param n Number of gates in the circuit
+  * @param g Vector of gates in the circuit
   */
-class CircuitGraph(val n: Int) {
-  val gates = new Array[Gate](n)
+class CircuitGraph(val g: Vector[Gate]) {
+  // Init an array of gates
+  val gates = new Array[Gate](g.length)
+  g.zipWithIndex.foreach { case (e, i) => gates(i) = e }
 
   // Global queue for simulation
   val q = new mutable.Queue[Gate]
@@ -33,9 +33,12 @@ class CircuitGraph(val n: Int) {
       // Evaluate
       gate.eval()
 
-      // Find all gates it drives, and enqueue them
-      val nextGates = gate.out.outGates.map(gates(_))
-      q.enqueue(nextGates: _*)
+      // If gate output is not x, enqueue next gates
+      if (gate.out.value != Bit.X) {
+        // Find all gates it drives, and enqueue them
+        val nextGates = gate.out.outGates.map(gates(_))
+        q.enqueue(nextGates: _*)
+      }
     }
   }
 
