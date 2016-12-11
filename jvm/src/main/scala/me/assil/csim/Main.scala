@@ -3,7 +3,9 @@ package me.assil.csim
 import java.io.{BufferedWriter, File, FileWriter}
 
 import scala.util.{Failure, Try}
+
 import joptsimple.OptionParser
+
 import Util.Time
 import circuit.Bit
 import fault.Fault

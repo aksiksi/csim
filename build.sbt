@@ -2,7 +2,8 @@ import sbt.Keys._
 
 name := "csim_root"
 
-scalaVersion in ThisBuild := "2.12.0"
+// Keeping this to support ScalaJS
+scalaVersion in ThisBuild := "2.11.8"
 
 scalacOptions += "-deprecation"
 
@@ -13,7 +14,7 @@ lazy val root = project.in(file(".")).aggregate(csimJS, csimJVM)
 lazy val csim = crossProject.in(file(".")).
   settings(
     name := "csim",
-    version := "0.0.4"
+    version := "0.0.5"
   ).
   jvmSettings(
     libraryDependencies ++= Seq(
