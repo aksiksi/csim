@@ -144,6 +144,7 @@ class CircuitParser(val lines: List[List[String]]) {
       case "OR" => Or(t.head, t(1), t(2), i)
       case "NOR" => Nor(t.head, t(1), t(2), i)
       case "XOR" => Xor(t.head, t(1), t(2), i)
+      case "XNOR" => Xnor(t.head, t(1), t(2), i)
       case "INV" => Inv(t.head, t(1), i)
       case "BUF" => Buf(t.head, t(1), i)
     }

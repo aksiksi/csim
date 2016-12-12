@@ -28,6 +28,9 @@ trait Gate {
   /** The controlling value of the gate */
   val c: Bit
 
+  /** The type of Gate */
+  val gate: String
+
   /** The operation performed by the circuit */
   def op: Bit
 

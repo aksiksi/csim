@@ -1,11 +1,11 @@
 package me.assil.csim.circuit
 
-case class Xor(in1: Net, in2: Net, out: Net, n: Int) extends Gate {
+case class Xnor(in1: Net, in2: Net, out: Net, n: Int) extends Gate {
   // TODO: check this out?
-  override val c = Bit.High
-  override val p = Bit.Low
+  override val c = Bit.Low
+  override val p = Bit.High
 
-  val gate = "XOR"
+  val gate = "XNOR"
 
   def op = in1 ^ in2
 

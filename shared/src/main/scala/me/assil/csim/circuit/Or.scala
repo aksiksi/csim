@@ -6,6 +6,8 @@ case class Or(in1: Net, in2: Net, out: Net, n: Int) extends Gate {
   override val c = Bit.High
   override val p = Bit.Low
 
+  val gate = "OR"
+
   def op = in1 | in2
 
   def faultFn = {

@@ -6,6 +6,8 @@ case class And(in1: Net, in2: Net, out: Net, n: Int) extends Gate {
   override val c = Bit.Low
   override val p = Bit.Low
 
+  val gate = "AND"
+
   def op = in1 & in2
 
   def faultFn = {

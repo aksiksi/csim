@@ -6,6 +6,8 @@ case class Nand(in1: Net, in2: Net, out: Net, n: Int) extends Gate {
   override val c = Bit.Low
   override val p = Bit.High
 
+  val gate = "NAND"
+
   def op = ~(in1 & in2)
 
   def faultFn = {

@@ -189,17 +189,21 @@ class PODEM(val lines: List[List[String]]) {
     var v: Bit = objective.value
     var k: Int = objective.node
 
+    // TODO: Add support for XOR based on other value of gate!
+    // So if gate is fully undefined, use c = 0
+    // Otherwise, use other input to determine inversion etc.
+
     // Keep tracing back until input hit
     while (nets(k-1).kind != Net.InputNet) {
       // Find the gate with output needed
       val gate: Gate = drivingGate(nets(k-1))
 
       // Inversion parity
-      val p = gate.p
+      var p = gate.p
 
       val in: Seq[Net] = Seq(gate.in1, gate.in2)
 
-      // Catch potential issue with gate input values (?)
+      // Catch "dead end" backtrace case
       if (!in.map(_.value).contains(Bit.X))
         return Assignment(-1, Bit.X)
 
@@ -224,8 +228,14 @@ class PODEM(val lines: List[List[String]]) {
         }
       }
 
-      // Compute new v
-      v = v ^ p
+      val other = (s + 1) % 2
+      val b: Bit = in(other).value
+
+      // Handle case of XOR and XNOR
+      // Otherwise, use inversion parity
+      if (b != Bit.X && gate.gate == "XOR") v = v ^ b
+      else if (b != Bit.X && gate.gate == "XNOR") v = ~(v ^ b)
+      else v = v ^ p
 
       // Update k
       k = in(s).n
@@ -246,6 +256,9 @@ class PODEM(val lines: List[List[String]]) {
     val (in1, in2) = (gate.in1, gate.in2)
 
     val faulty = (in1.faulty, in2.faulty)
+    val (b1, b2) = (in1.value, in2.value)
+
+    val isXor = Seq("XOR", "XNOR").contains(gate.gate)
 
     // Determine if gate's children should be pushed to DF
     // and update faulty value for gate output net
@@ -254,10 +267,23 @@ class PODEM(val lines: List[List[String]]) {
         gate.out.faulty = Bit.X
         false
       case (Bit.D, Bit.D) =>
-        gate.out.faulty = Bit.D ^ gate.p
-        true
+        // XOR/XNOR will kill fault if same or different
+        if (isXor) {
+          gate.out.faulty = Bit.X
+          false
+        } else {
+          gate.out.faulty = Bit.D ^ gate.p
+          true
+        }
       case (_, Bit.D) =>
-        if (in1.value == gate.c) {
+        if (isXor) {
+          gate.out.faulty =
+            if (gate.gate == "XOR")
+              Bit.D ^ b1
+            else
+              ~(Bit.D ^ b1)
+          true
+        } else if (b1 == gate.c) {
           gate.out.faulty = Bit.X
           false
         } else {
@@ -265,7 +291,14 @@ class PODEM(val lines: List[List[String]]) {
           true
         }
       case (Bit.D, _) =>
-        if (in2.value == gate.c) {
+        if (isXor) {
+          gate.out.faulty =
+            if (gate.gate == "XOR")
+              Bit.D ^ b2
+            else
+              ~(Bit.D ^ b2)
+          true
+        } else if (b2 == gate.c) {
           gate.out.faulty = Bit.X
           false
         } else {
@@ -273,10 +306,22 @@ class PODEM(val lines: List[List[String]]) {
           true
         }
       case (Bit.Db, Bit.Db) =>
-        gate.out.faulty = Bit.Db ^ gate.p
-        true
+        if (isXor) {
+          gate.out.faulty = Bit.X
+          false
+        } else {
+          gate.out.faulty = Bit.Db ^ gate.p
+          true
+        }
       case (_, Bit.Db) =>
-        if (in1.value == gate.c) {
+        if (isXor) {
+          gate.out.faulty =
+            if (gate.gate == "XOR")
+              Bit.Db ^ b1
+            else
+              ~(Bit.Db ^ b1)
+          true
+        } else if (b1 == gate.c) {
           gate.out.faulty = Bit.X
           false
         } else {
@@ -284,7 +329,14 @@ class PODEM(val lines: List[List[String]]) {
           true
         }
       case (Bit.Db, _) =>
-        if (in2.value == gate.c) {
+        if (isXor) {
+          gate.out.faulty =
+            if (gate.gate == "XOR")
+              Bit.Db ^ b2
+            else
+              ~(Bit.Db ^ b2)
+          true
+        } else if (b2 == gate.c) {
           gate.out.faulty = Bit.X
           false
         } else {
@@ -333,13 +385,8 @@ class PODEM(val lines: List[List[String]]) {
             addChildren = true
           }
 
-          else {
-            val faulty = (in1.faulty, in2.faulty)
-
+          else
             addChildren = propagateError(gate)
-          }
-
-          // TODO: add special case for XOR??
 
           // Error at output?
           if (outputNets.contains(gate.out.n)) {
@@ -359,9 +406,11 @@ class PODEM(val lines: List[List[String]]) {
       }
 
       // Otherwise, if DF doesn't contain the gate OR neither input is at controlling,
-      // evaluate the gate. Implicitly, a gate in DF with controlling is NEVER evaluated.
-      else if (!dFrontier.contains(gate) || (in1.value != gate.c && in2.value != gate.c))
+      // evaluate the gate. Implicitly, a gate in DF with controlling is NEVER evaluated
+      else if (!dFrontier.contains(gate) || (in1.value != gate.c && in2.value != gate.c) ||
+               Seq("XOR", "XNOR").contains(gate.gate)) {
         gate.eval()
+      }
 
       // If gate output has been computed, enqueue child gates for simulation
       if (gate.out.value != Bit.X) {

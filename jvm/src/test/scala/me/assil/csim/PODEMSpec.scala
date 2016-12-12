@@ -10,6 +10,8 @@ import podem.PODEM
 
 class PODEMSpec extends FunSuite {
 
+  val DEBUG = false
+
   private def testPODEM(circuit: String) = {
     val simFile = new File(getClass.getResource(s"circuits/$circuit.ckt").getFile)
     val lines = CircuitHelper.readSimFile(simFile)
@@ -34,8 +36,11 @@ class PODEMSpec extends FunSuite {
         else b
       }
 
-      if (v.isEmpty)
+      if (v.isEmpty) {
+        if (DEBUG)
+          println(s"$fault")
         Fault(fault.node, Bit.X)
+      }
 
       else {
         val (out, detected) = sim.run(t, Vector())
@@ -43,8 +48,11 @@ class PODEMSpec extends FunSuite {
 
         if (found)
           fault
-        else
+        else {
+          if (DEBUG)
+            println(s"$fault, $pv")
           Fault(-1, Bit.X)
+        }
       }
     }
 
