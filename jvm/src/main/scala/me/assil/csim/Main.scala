@@ -162,15 +162,20 @@ object Main extends App {
           Time {
             val fault = Fault(line.head.toInt, Bit(line(1).toInt))
 
-            val v = podem.run(fault).map {
-              case Bit.X => Bit.Low
-              case b => b
-            }
+            val v = podem.run(fault)
+            val pv = v.map {
+              case Bit.High => "1"
+              case Bit.Low => "0"
+              case Bit.X => "x"
+            }.mkString("")
 
-            println(s"Test vector: ${v.map(_.value).mkString("")}")
+            println(s"Test vector: $pv")
 
             // Simulate all faults
-            val (output, detected) = sim.run(v, Vector())
+            val (_, detected) = sim.run(v.map {
+              case Bit.X => Bit.Low
+              case b => b
+            }, Vector())
 
             // Was initial fault detected?
             val status: String =
@@ -194,6 +199,115 @@ object Main extends App {
     }
   }
 
+  object Done extends Exception
+
+  def REPL(simFile: File): Unit = {
+    try {
+      val lines = CircuitHelper.readSimFile(simFile)
+
+      val sim = new CircuitSimulator(lines)
+      val podem = new PODEM(lines)
+
+      // Main repl
+      while (true) {
+        print("Enter a mode: ")
+
+        val mode: Int = StdIn.readLine().trim.toLowerCase match {
+          case "podem" => 0
+          case "sim" => 1
+          case "fault" => 2
+          case "coverage" => 3
+          case "q" | "quit" => throw Done
+          case _ => -1
+        }
+
+        if (mode == -1) {
+          println("Please enter a valid option!")
+          println("Options: podem, sim, fault, coverage")
+        }
+
+        var stop = false
+
+        while (mode != -1 && !stop) {
+          print("Enter a value: ")
+
+          val line = StdIn.readLine().trim
+
+          if (line == "q" || line == "quit") stop = true
+          else if (mode == 0) {
+            Time {
+              val split = line.split(" ")
+              val fault = Fault(split.head.toInt, Bit(split(1).toInt))
+
+              val v = podem.run(fault)
+              val pv = v.map {
+                case Bit.High => "1"
+                case Bit.Low => "0"
+                case Bit.X => "x"
+              }.mkString("")
+
+              println(s"Test vector: $pv")
+
+              // Simulate all faults
+              val (_, detected) = sim.run(v.map {
+                case Bit.X => Bit.Low
+                case b => b
+              }, Vector())
+
+              // Was initial fault detected?
+              val status: String =
+              if (detected.contains(fault)) "Yes"
+              else "No"
+
+              println(s"Detected ${fault.node} s-a-${fault.value.value}? $status")
+
+              // Print all detected faults
+              val faultString = detected.fs.map { f =>
+                s"${f.node} s-a-${f.value.value}"
+              }.mkString("\n")
+
+              println(faultString)
+            }
+          }
+          else if (mode == 1 || mode == 2) {
+            val input: Vector[Bit] = line.split("").map { v => Bit(v.toInt) }.toVector
+
+            if (mode == 1) {
+              val output: Vector[Bit] = sim.run(input)
+              println { s"Result: ${output.map(_.value).mkString}" }
+            }
+
+            else {
+              val (output, detected) = sim.run(input, Vector())
+
+              val inString = input.map(_.value).mkString
+              val outString = output.map(_.value).mkString
+              val faultString = detected.fs.map { fault =>
+                s"${fault.node} s-a-${fault.value.value}"
+              }.mkString("\n")
+
+              println {
+                s"""Input: $inString
+                    |Output: $outString
+                    |Number of faults: ${detected.length}
+                    |Faults:\n$faultString\n\n""".stripMargin
+              }
+            }
+          }
+
+          else {
+            println("Not implemented!")
+          }
+        }
+      }
+    }
+
+    catch {
+      case Done => Unit
+      case e: Exception => println(e.printStackTrace())
+    }
+  }
+
   val parser = new OptionParser()
 
   // Argument parser
@@ -204,6 +318,8 @@ object Main extends App {
   val coverage = parser.accepts("coverage").availableIf(fault)
 
   val podem = parser.accepts("podem").withRequiredArg().ofType(classOf[File])
+
+  val repl = parser.accepts("repl").withRequiredArg().ofType(classOf[File])
 
   // Help option
   parser.accepts("help").forHelp()
@@ -232,6 +348,8 @@ object Main extends App {
   }
   else if (options.has(podem))
     podemREPL(options.valueOf(podem))
+  else if (options.has(repl))
+    REPL(options.valueOf(repl))
   else
     helpMessage()
 }
