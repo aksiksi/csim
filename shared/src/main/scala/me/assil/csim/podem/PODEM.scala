@@ -1,7 +1,10 @@
 package me.assil.csim.podem
 
+import java.io.File
+import java.io.PrintWriter
+
 import me.assil.csim.CircuitParser
-import me.assil.csim.circuit.{Bit, Gate, Net}
+import me.assil.csim.circuit._
 import me.assil.csim.fault.Fault
 
 import scala.collection.mutable
@@ -11,6 +14,11 @@ object PODEM {
 
   case class Objective(node: Int, value: Bit)
   case class Assignment(input: Int, value: Bit)
+
+//  val errorFile = new File("/tmp/error.out")
+//  errorFile.createNewFile()
+//
+//  val pw = new PrintWriter(errorFile)
 }
 
 class PODEM(val lines: List[List[String]]) {
@@ -74,6 +82,9 @@ class PODEM(val lines: List[List[String]]) {
 
     // 3. If fault cannot be "seen" after implication => fail
     if (nets(curFault.node-1).value == curFault.value) return false
+
+    // If fault value has been overwritten => fail
+    if (Seq(Bit.Low, Bit.High).contains(nets(curFault.node-1).faulty)) return false
 
     // 4. Get an objective from DF or current fault
     val objective: Objective = getObjective()
@@ -258,6 +269,27 @@ class PODEM(val lines: List[List[String]]) {
     val faulty = (in1.faulty, in2.faulty)
     val (b1, b2) = (in1.value, in2.value)
 
+//    faulty match {
+//      case (Bit.X, _) => in1.faulty = b1
+//      case (_, Bit.X) => in2.faulty = b2
+//      case _ => Unit
+//    }
+//
+//    val (f1, f2) = (in1.faulty, in2.faulty)
+//
+//    gate match {
+//      case g: And => gate.out.faulty = f1 & f2
+//      case g: Nand => gate.out.faulty = ~(f1 & f2)
+//      case g: Or => gate.out.faulty = f1 | f2
+//      case g: Nor => gate.out.faulty = ~(f1 | f2)
+//      case g: Xor => gate.out.faulty = f1 ^ f2
+//      case g: Xnor => gate.out.faulty = ~(f1 ^ f2)
+//      case g: Inv => gate.out.faulty = ~f1
+//      case g: Buf => gate.out.faulty = f1
+//    }
+//
+//    Seq(Bit.D, Bit.Db).contains(gate.out.faulty)
+
     val isXor = Seq("XOR", "XNOR").contains(gate.gate)
 
     // Determine if gate's children should be pushed to DF
@@ -347,6 +379,21 @@ class PODEM(val lines: List[List[String]]) {
     }
   }
 
+  def addToDF(gate: Gate): Boolean = {
+    val (in1, in2) = (gate.in1, gate.in2)
+
+    (in1.faulty, in2.faulty) match {
+      case (Bit.X, Bit.X) => false
+      case (Bit.X, _) =>
+        if (in1.value != gate.c) true
+        else false
+      case (_, Bit.X) =>
+        if (in2.value != gate.c) true
+        else false
+      case (_, _) => false
+    }
+  }
+
   /**
     * Run a limited forward simulation, starting from input.
     */
@@ -365,15 +412,22 @@ class PODEM(val lines: List[List[String]]) {
       // Get a gate
       val gate = q.dequeue()
 
+      // Get gate input nets
       val (in1, in2) = (gate.in1, gate.in2)
 
-      // D-frontier update
-      if (dFrontier.contains(gate)) {
-        // Evaluate a gate iff both inputs defined
-        // and push children ONLY in case D/D' is at output
-        if ((in1.value != Bit.X && in2.value != Bit.X) || (in1.value != Bit.X && in2.n == -1)) {
-          gate.eval()
+      // If both inputs defined, do DF processing and/or check for PO error
+      if ((in1.value != Bit.X && in2.value != Bit.X) || (in1.value != Bit.X && in2.n == -1)) {
+        // Evaluate the gate
+        gate.eval()
 
+        // If gate not in D-frontier
+        // Check for addition to DF
+        if (!dFrontier.contains(gate) && addToDF(gate))
+          dFrontier += gate
+
+        // D-frontier update
+        if (dFrontier.contains(gate)) {
+          // Push children ONLY in case D/D' is at output
           var addChildren = false
 
           // If 1-input, just eval fault and add children to DF
@@ -385,32 +439,35 @@ class PODEM(val lines: List[List[String]]) {
             addChildren = true
           }
 
-          else
+          else {
+            // Check if error has been propagated
             addChildren = propagateError(gate)
+          }
 
-          // Error at output?
+          // Add all children to DF iff gate meets reqs (i.e., error propagated)
+          if (addChildren)
+            dFrontier ++= gate.out.outGates.map(gates(_))
+
+          // If gate is tied to an output, check for error at PO
           if (outputNets.contains(gate.out.n)) {
             if (gate.out.faulty == Bit.D || gate.out.faulty == Bit.Db)
               errAtPO = true
+
+            // Remove an output gate whose output is not fault target
+            if (curFault.node != gate.out.n)
+              dFrontier.remove(gate)
           }
 
-          else {
-            // Remove gate from DF
+          // Remove gate from DF if it's not at output
+          else if (!outputNets.contains(gate.out.n))
             dFrontier.remove(gate)
-
-            // Add all children to DF (iff meets above reqs)
-            if (addChildren)
-              dFrontier ++= gate.out.outGates.map(gates(_))
-          }
         }
       }
 
-      // Otherwise, if DF doesn't contain the gate OR neither input is at controlling,
-      // evaluate the gate. Implicitly, a gate in DF with controlling is NEVER evaluated
-      else if (!dFrontier.contains(gate) || (in1.value != gate.c && in2.value != gate.c) ||
-               Seq("XOR", "XNOR").contains(gate.gate)) {
+      // ALWAYS evaluate a gate that does not have an error at its inputs
+      else if (!Seq(Bit.D, Bit.Db).contains(in1.faulty) &&
+               !Seq(Bit.D, Bit.Db).contains(in2.faulty))
         gate.eval()
-      }
 
       // If gate output has been computed, enqueue child gates for simulation
       if (gate.out.value != Bit.X) {

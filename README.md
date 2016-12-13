@@ -8,7 +8,7 @@
 
 - [x] Simulation of digital circuits consisting of basic gates (AND, OR, NAND, NOR, INV, BUF, XOR)
 - [x] Working deductive fault simulator that supports all of the gates above
-- [x] Fully operational PODEM implementation (no support for XOR yet!)
+- [x] Fully operational PODEM implementation (with XOR/XNOR support!)
 
 ### Build
 
@@ -36,38 +36,93 @@ Look under the directory `[jvm|js]/target/scala-2.11` for the output JAR or JS f
 
 ### Usage
 
-Quick example of a simple simulation. Input vector file is `a.in`, circuit description file is `a.ckt`.
+#### Scala (JVM)
 
-See the example `Main` in `jvm/src/main/scala/me/assil/csim`.
+Quick example of a simple simulation. Input vector file is `s27.in`, circuit description file is `s27.ckt` (both found in `jvm/src/test/resources`).
 
 ```scala
-import me.assil.csim.{Bit, CircuitHelper, Simulator}
+import me.assil.csim
+import csim.circuit.Bit
+import csim.CircuitHelper
+import csim.CircuitSimulator
 
 import java.io.File
 
 object Main extends App {
-  val inputs: Vector[Vector[Bit]] = CircuitHelper.parseInputFile(new File("a.in"))
-  val simFile: List[List[String]] = CircuitHelper.readFile(new File("a.ckt"))
+  // Read input file for circuit s27
+  val inputs: Vector[Vector[Bit]] = CircuitHelper.parseInputFile(new File("s27.in"))
+  
+  // Read in circuit file
+  val simFile: List[List[String]] = CircuitHelper.readSimFile(new File("s27.ckt"))
 
-  val sim = new Simulator(simFile)
+  // Create a CircuitSimulator object
+  val sim = new CircuitSimulator(simFile)
 
+  // Run the simulator for each input vector
   val outputs: Vector[Vector[Bit]] = inputs.map(sim.run)
 }
 ```
 
-To use Csim.js from JavaScript, use the example below to get an idea of the API:
+Example of using PODEM to generate a test vector for the fault 13 s-a-1 for circuit `s27`.
+
+```scala
+import me.assil.csim
+import csim.circuit.Bit
+import csim.fault.Fault
+import csim.podem.PODEM
+
+import java.io.File
+
+object Main extends App {
+  // Read the circuit input file
+  val simFile: List[List[String]] = CircuitHelper.readSimFile(new File("s27.ckt"))
+
+  // Create a PODEM object 
+  val podem = new PODEM(lines)
+  
+  // Create a Fault object
+  val fault = Fault(13, Bit.High)
+
+  // Run PODEM and store test vector
+  val v: Vector[Bit] = podem.run(fault)
+}
+```
+
+#### JavaScript (ES6)
+
+To use Csim.js from JavaScript, use the examples below to get an idea of the API.
+
+Example of running a simulation given a circuit and an array of input vectors:
 
 ```javascript
 // Sample circuit input file, split into lines
-var circuit = ["AND 1 2 3", "INPUT 1 2", "OUTPUT 3"];
+const circuit = ["AND 1 2 3", "INPUT 1 2", "OUTPUT 3"];
 
 // Two input vectors
-var inputs = [[1,0], [0,1]];
+const inputs = [[1,0], [0,1]];
 
 // Init the simulator, and run it
-var c = new Csim(circuit, inputs);
-c.run();
+const c = new Csim(circuit);
+const outputs = c.run(inputs);
 
 // Log the result - Array[Array[Int]]
-console.log(c.outputs); // => [[0], [0]]
+console.log(outputs); // => [[0], [0]]
 ```
+
+You can also run the PODEM algorithm in JS:
+
+```javascript
+// Sample circuit input file, split into lines
+const circuit = ["AND 1 2 3", "INPUT 1 2", "OUTPUT 3"];
+
+// Fault is net 2 s-a-1
+const fault = [2, 1];
+
+// Run PODEM
+const c = new Csim(circuit);
+const vector = c.podem(fault);
+
+console.log(vector);
+```
+
+For more examples, refer to the tests located in `jvm/src/test/scala`. The tests only cover the JVM target, but they should be sufficient to understand how to use (and extend) the JS API.

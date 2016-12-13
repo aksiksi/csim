@@ -80,7 +80,7 @@ class PODEMSpec extends FunSuite {
   test("It should generate all test vectors for s349f_2") {
     val results: Vector[Fault] = testPODEM("s349f_2")
 
-    // Ensure that only fault 144 s-a-0 is not detected
+    // Ensure that only fault 179 s-a-1 is not detected
     val undetected = results.filter(_.value == Bit.X)
     assert(undetected.length == 1 && undetected.exists(_.node == 179))
 
