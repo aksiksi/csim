@@ -83,9 +83,6 @@ class PODEM(val lines: List[List[String]]) {
     // 3. If fault cannot be "seen" after implication => fail
     if (nets(curFault.node-1).value == curFault.value) return false
 
-    // If fault value has been overwritten => fail
-    if (Seq(Bit.Low, Bit.High).contains(nets(curFault.node-1).faulty)) return false
-
     // 4. Get an objective from DF or current fault
     val objective: Objective = getObjective()
 
