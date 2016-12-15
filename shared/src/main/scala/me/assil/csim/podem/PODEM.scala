@@ -266,27 +266,6 @@ class PODEM(val lines: List[List[String]]) {
     val faulty = (in1.faulty, in2.faulty)
     val (b1, b2) = (in1.value, in2.value)
 
-//    faulty match {
-//      case (Bit.X, _) => in1.faulty = b1
-//      case (_, Bit.X) => in2.faulty = b2
-//      case _ => Unit
-//    }
-//
-//    val (f1, f2) = (in1.faulty, in2.faulty)
-//
-//    gate match {
-//      case g: And => gate.out.faulty = f1 & f2
-//      case g: Nand => gate.out.faulty = ~(f1 & f2)
-//      case g: Or => gate.out.faulty = f1 | f2
-//      case g: Nor => gate.out.faulty = ~(f1 | f2)
-//      case g: Xor => gate.out.faulty = f1 ^ f2
-//      case g: Xnor => gate.out.faulty = ~(f1 ^ f2)
-//      case g: Inv => gate.out.faulty = ~f1
-//      case g: Buf => gate.out.faulty = f1
-//    }
-//
-//    Seq(Bit.D, Bit.Db).contains(gate.out.faulty)
-
     val isXor = Seq("XOR", "XNOR").contains(gate.gate)
 
     // Determine if gate's children should be pushed to DF
@@ -460,6 +439,9 @@ class PODEM(val lines: List[List[String]]) {
             dFrontier.remove(gate)
         }
       }
+
+      else if (Seq(Bit.D, Bit.Db).contains(in1.faulty) || Seq(Bit.D, Bit.Db).contains(in2.faulty))
+          dFrontier += gate
 
       // ALWAYS evaluate a gate that does not have an error at its inputs
       else if (!Seq(Bit.D, Bit.Db).contains(in1.faulty) &&
