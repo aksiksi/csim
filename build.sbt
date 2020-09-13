@@ -3,7 +3,7 @@ import sbt.Keys._
 name := "csim_root"
 
 // Keeping this to support ScalaJS
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := "2.13.3"
 
 scalacOptions += "-deprecation"
 
