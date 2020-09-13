@@ -3,9 +3,9 @@ cache:
   directories:
     - $HOME/.ivy2/cache
 scala:
-  - 2.11.8
+  - 2.13.3
 jdk:
-  - oraclejdk8
+  - oraclejdk11
 script:
   - sbt csimJVM/compile
   - sbt csimJVM/test
