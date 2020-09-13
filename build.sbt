@@ -11,7 +11,8 @@ enablePlugins(ScalaJSPlugin)
 
 lazy val root = project.in(file(".")).aggregate(csimJS, csimJVM)
 
-lazy val csim = crossProject.in(file(".")).
+lazy val csim = crossProject(JSPlatform, JVMPlatform).
+  in(file(".")).
   settings(
     name := "csim",
     version := "0.0.5"
@@ -25,7 +26,6 @@ lazy val csim = crossProject.in(file(".")).
     mainClass in assembly := Some("me.assil.csim.Main")
   ).
   jsSettings(
-    scalaJSUseRhino in Global := false,
     mainClass := Some("me.assil.csim.Csim")
   )
 
